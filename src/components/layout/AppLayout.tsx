@@ -1,15 +1,22 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Building2, QrCode, Menu, X } from "lucide-react";
+import { Home, Building2, QrCode, Menu, X, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 
 interface AppLayoutProps {
   children: React.ReactNode;
   title: string;
+  showBackButton?: boolean;
+  onBack?: () => void;
 }
 
-export const AppLayout: React.FC<AppLayoutProps> = ({ children, title }) => {
+export const AppLayout: React.FC<AppLayoutProps> = ({ 
+  children, 
+  title, 
+  showBackButton = false,
+  onBack
+}) => {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -17,15 +24,34 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children, title }) => {
     setMenuOpen(!menuOpen);
   };
 
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      window.history.back();
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-primary-700 text-white shadow-md">
-        <div className="flex items-center justify-between p-4">
-          <h1 className="text-xl font-bold">{title}</h1>
+      {/* Header - Móvil optimizado */}
+      <header className="bg-primary-700 text-white shadow-md safe-top">
+        <div className="flex items-center justify-between p-4 pt-safe-top">
+          <div className="flex items-center">
+            {showBackButton && (
+              <button 
+                onClick={handleBack}
+                className="mr-2 p-1 rounded-full hover:bg-primary-600"
+              >
+                <ChevronLeft size={24} />
+              </button>
+            )}
+            <h1 className="text-xl font-bold">{title}</h1>
+          </div>
           <button 
             onClick={toggleMenu}
             className="md:hidden p-2 rounded-full hover:bg-primary-600"
+            aria-label="Menú"
           >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -81,18 +107,19 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children, title }) => {
           </nav>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile menu - Drawer style */}
         {menuOpen && (
           <div className="absolute inset-0 z-50 md:hidden">
             <div 
               className="absolute inset-0 bg-black opacity-50"
               onClick={() => setMenuOpen(false)}
             ></div>
-            <div className="absolute left-0 top-0 h-full w-64 bg-white shadow-md">
+            <div className="absolute left-0 top-0 h-full w-64 bg-white shadow-md pt-safe-top">
               <div className="flex justify-end p-4">
                 <button 
                   onClick={() => setMenuOpen(false)}
                   className="p-2 rounded-full hover:bg-gray-100"
+                  aria-label="Cerrar menú"
                 >
                   <X size={20} />
                 </button>
@@ -147,10 +174,47 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children, title }) => {
           </div>
         )}
 
-        {/* Content */}
-        <main className="flex-1 p-4 overflow-auto">
+        {/* Content - Con protección para dispositivos móviles */}
+        <main className="flex-1 p-4 overflow-auto pb-safe-bottom">
           {children}
         </main>
+      </div>
+
+      {/* Footer Navigation - Solo Móvil */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around pb-safe-bottom">
+        <Link
+          to="/"
+          className={`flex flex-col items-center py-2 px-4 ${
+            location.pathname === "/"
+              ? "text-primary-700"
+              : "text-gray-600"
+          }`}
+        >
+          <Home size={24} />
+          <span className="text-xs mt-1">Inicio</span>
+        </Link>
+        <Link
+          to="/condominiums"
+          className={`flex flex-col items-center py-2 px-4 ${
+            location.pathname.includes("/condominiums") && !location.pathname.includes("/share")
+              ? "text-primary-700"
+              : "text-gray-600"
+          }`}
+        >
+          <Building2 size={24} />
+          <span className="text-xs mt-1">Condominios</span>
+        </Link>
+        <Link
+          to="/share"
+          className={`flex flex-col items-center py-2 px-4 ${
+            location.pathname === "/share"
+              ? "text-primary-700"
+              : "text-gray-600"
+          }`}
+        >
+          <QrCode size={24} />
+          <span className="text-xs mt-1">Compartir</span>
+        </Link>
       </div>
     </div>
   );

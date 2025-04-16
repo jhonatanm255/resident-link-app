@@ -10,8 +10,8 @@ interface CondominiumCardProps {
 
 export const CondominiumCard: React.FC<CondominiumCardProps> = ({ condominium }) => {
   return (
-    <Link to={`/condominiums/${condominium.id}`}>
-      <div className="bg-white rounded-lg shadow-md p-5 mb-4 hover:shadow-lg transition-shadow">
+    <Link to={`/condominiums/${condominium.id}`} className="block">
+      <div className="bg-white rounded-lg shadow-md p-5 mb-4 hover:shadow-lg transition-shadow active:bg-gray-50">
         <div className="flex items-start justify-between">
           <div className="flex items-center">
             <div className="bg-primary-100 p-3 rounded-full mr-4">

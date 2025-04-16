@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -72,7 +73,22 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Añadimos colores específicos para dispositivos móviles
+				mobile: {
+					background: '#f8fafc',
+					card: '#ffffff',
+					text: '#0f172a',
+					border: '#e2e8f0',
+					notification: '#ef4444',
 				}
+			},
+			// Añadimos tamaños específicos para dispositivos móviles
+			spacing: {
+				'safe-top': 'env(safe-area-inset-top)',
+				'safe-bottom': 'env(safe-area-inset-bottom)',
+				'safe-left': 'env(safe-area-inset-left)',
+				'safe-right': 'env(safe-area-inset-right)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

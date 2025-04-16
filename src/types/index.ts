@@ -19,3 +19,18 @@ export interface Condominium {
   address: string;
   apartments: Apartment[];
 }
+
+// Nuevas interfaces para funcionalidades móviles
+
+export interface DeviceInfo {
+  platform: 'ios' | 'android' | 'web';
+  isOnline: boolean;
+  appVersion: string;
+}
+
+export interface AppSettings {
+  notificationsEnabled: boolean;
+  darkMode: boolean;
+  language: 'es' | 'en';
+  autoSync: boolean;
+}
