@@ -1,192 +1,334 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { Condominium, Apartment, Resident } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
+import { 
+  collection, 
+  doc, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  setDoc,
+  query,
+  where,
+  onSnapshot
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { toast } from "sonner";
 
 interface AppContextType {
   condominiums: Condominium[];
-  addCondominium: (condominium: Omit<Condominium, "id" | "apartments">) => void;
-  updateCondominium: (condominium: Condominium) => void;
-  deleteCondominium: (id: string) => void;
-  addApartment: (apartment: Omit<Apartment, "id">) => void;
-  updateApartment: (apartment: Apartment) => void;
-  deleteApartment: (id: string) => void;
-  importData: (data: { condominiums: Condominium[] }) => void;
+  loading: boolean;
+  addCondominium: (condominium: Omit<Condominium, "id" | "apartments">) => Promise<void>;
+  updateCondominium: (condominium: Condominium) => Promise<void>;
+  deleteCondominium: (id: string) => Promise<void>;
+  addApartment: (apartment: Omit<Apartment, "id">) => Promise<void>;
+  updateApartment: (apartment: Apartment) => Promise<void>;
+  deleteApartment: (id: string, condominiumId: string) => Promise<void>;
+  importData: (data: { condominiums: Condominium[] }) => Promise<void>;
   exportData: () => { condominiums: Condominium[] };
   generateSharingCode: (condominiumId: string) => string;
-  importFromSharingCode: (code: string) => boolean;
+  importFromSharingCode: (code: string) => Promise<boolean>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = "resident-link-data";
-
-// Load data from localStorage
-const loadInitialData = (): Condominium[] => {
-  try {
-    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (savedData) {
-      return JSON.parse(savedData).condominiums || [];
-    }
-  } catch (error) {
-    console.error("Error loading data from localStorage:", error);
-  }
-  return [];
-};
-
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [condominiums, setCondominiums] = useState<Condominium[]>(loadInitialData());
-  
-  // Save data to localStorage whenever it changes
+  const [condominiums, setCondominiums] = useState<Condominium[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
+
+  // Cargar datos desde Firestore cuando el usuario cambia
   useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ condominiums }));
-    } catch (error) {
-      console.error("Error saving data to localStorage:", error);
+    if (!currentUser) {
+      setCondominiums([]);
+      setLoading(false);
+      return;
     }
-  }, [condominiums]);
 
-  // Generate unique ID
-  const generateId = (): string => {
-    return Math.random().toString(36).substring(2, 9);
-  };
-
-  // Add condominium
-  const addCondominium = (condominiumData: Omit<Condominium, "id" | "apartments">) => {
-    const newCondominium: Condominium = {
-      id: generateId(),
-      ...condominiumData,
-      apartments: [],
-    };
-    setCondominiums([...condominiums, newCondominium]);
-  };
-
-  // Update condominium
-  const updateCondominium = (updatedCondominium: Condominium) => {
-    setCondominiums(
-      condominiums.map((condominium) =>
-        condominium.id === updatedCondominium.id ? updatedCondominium : condominium
-      )
+    setLoading(true);
+    
+    const q = query(
+      collection(db, "condominiums"), 
+      where("userId", "==", currentUser.uid)
     );
+    
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const condominiumsData: Condominium[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        condominiumsData.push({
+          id: doc.id,
+          name: data.name,
+          address: data.address,
+          apartments: data.apartments || [],
+        });
+      });
+      
+      setCondominiums(condominiumsData);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error loading condominiums:", error);
+      toast.error("Error al cargar los condominios");
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  // Agregar condominio
+  const addCondominium = async (condominiumData: Omit<Condominium, "id" | "apartments">) => {
+    if (!currentUser) return;
+    
+    try {
+      await addDoc(collection(db, "condominiums"), {
+        ...condominiumData,
+        userId: currentUser.uid,
+        apartments: [],
+        createdAt: new Date()
+      });
+      toast.success("Condominio creado correctamente");
+    } catch (error) {
+      console.error("Error adding condominium:", error);
+      toast.error("Error al crear el condominio");
+      throw error;
+    }
   };
 
-  // Delete condominium
-  const deleteCondominium = (id: string) => {
-    setCondominiums(condominiums.filter((condominium) => condominium.id !== id));
+  // Actualizar condominio
+  const updateCondominium = async (updatedCondominium: Condominium) => {
+    if (!currentUser) return;
+    
+    try {
+      const docRef = doc(db, "condominiums", updatedCondominium.id);
+      
+      await updateDoc(docRef, {
+        name: updatedCondominium.name,
+        address: updatedCondominium.address,
+        updatedAt: new Date()
+      });
+      
+      toast.success("Condominio actualizado correctamente");
+    } catch (error) {
+      console.error("Error updating condominium:", error);
+      toast.error("Error al actualizar el condominio");
+      throw error;
+    }
   };
 
-  // Add apartment
-  const addApartment = (apartmentData: Omit<Apartment, "id">) => {
-    const newApartment: Apartment = {
-      id: generateId(),
-      ...apartmentData,
-    };
+  // Eliminar condominio
+  const deleteCondominium = async (id: string) => {
+    if (!currentUser) return;
+    
+    try {
+      await deleteDoc(doc(db, "condominiums", id));
+      toast.success("Condominio eliminado correctamente");
+    } catch (error) {
+      console.error("Error deleting condominium:", error);
+      toast.error("Error al eliminar el condominio");
+      throw error;
+    }
+  };
 
-    setCondominiums(
-      condominiums.map((condominium) => {
-        if (condominium.id === apartmentData.condominiumId) {
-          return {
-            ...condominium,
-            apartments: [...condominium.apartments, newApartment],
-          };
+  // Agregar apartamento
+  const addApartment = async (apartmentData: Omit<Apartment, "id">) => {
+    if (!currentUser) return;
+    
+    try {
+      const condominiumRef = doc(db, "condominiums", apartmentData.condominiumId);
+      const apartmentId = Math.random().toString(36).substring(2, 9);
+      
+      const newApartment: Apartment = {
+        id: apartmentId,
+        ...apartmentData,
+      };
+      
+      // Obtener condominio actual
+      const condominiumIndex = condominiums.findIndex(
+        (c) => c.id === apartmentData.condominiumId
+      );
+      
+      if (condominiumIndex === -1) {
+        throw new Error("Condominio no encontrado");
+      }
+      
+      // Agregar apartamento a la matriz de apartamentos
+      const updatedCondominium = {
+        ...condominiums[condominiumIndex],
+        apartments: [...condominiums[condominiumIndex].apartments, newApartment],
+      };
+      
+      // Actualizar en Firestore
+      await updateDoc(condominiumRef, {
+        apartments: updatedCondominium.apartments,
+        updatedAt: new Date()
+      });
+      
+      toast.success("Apartamento creado correctamente");
+    } catch (error) {
+      console.error("Error adding apartment:", error);
+      toast.error("Error al crear el apartamento");
+      throw error;
+    }
+  };
+
+  // Actualizar apartamento
+  const updateApartment = async (updatedApartment: Apartment) => {
+    if (!currentUser) return;
+    
+    try {
+      const condominiumRef = doc(db, "condominiums", updatedApartment.condominiumId);
+      
+      // Obtener condominio actual
+      const condominiumIndex = condominiums.findIndex(
+        (c) => c.id === updatedApartment.condominiumId
+      );
+      
+      if (condominiumIndex === -1) {
+        throw new Error("Condominio no encontrado");
+      }
+      
+      // Actualizar apartamento en la matriz
+      const updatedApartments = condominiums[condominiumIndex].apartments.map(
+        (apartment) => (apartment.id === updatedApartment.id ? updatedApartment : apartment)
+      );
+      
+      // Actualizar en Firestore
+      await updateDoc(condominiumRef, {
+        apartments: updatedApartments,
+        updatedAt: new Date()
+      });
+      
+      toast.success("Apartamento actualizado correctamente");
+    } catch (error) {
+      console.error("Error updating apartment:", error);
+      toast.error("Error al actualizar el apartamento");
+      throw error;
+    }
+  };
+
+  // Eliminar apartamento
+  const deleteApartment = async (id: string, condominiumId: string) => {
+    if (!currentUser) return;
+    
+    try {
+      const condominiumRef = doc(db, "condominiums", condominiumId);
+      
+      // Obtener condominio actual
+      const condominiumIndex = condominiums.findIndex(
+        (c) => c.id === condominiumId
+      );
+      
+      if (condominiumIndex === -1) {
+        throw new Error("Condominio no encontrado");
+      }
+      
+      // Filtrar apartamento a eliminar
+      const updatedApartments = condominiums[condominiumIndex].apartments.filter(
+        (apartment) => apartment.id !== id
+      );
+      
+      // Actualizar en Firestore
+      await updateDoc(condominiumRef, {
+        apartments: updatedApartments,
+        updatedAt: new Date()
+      });
+      
+      toast.success("Apartamento eliminado correctamente");
+    } catch (error) {
+      console.error("Error deleting apartment:", error);
+      toast.error("Error al eliminar el apartamento");
+      throw error;
+    }
+  };
+
+  // Importar datos
+  const importData = async (data: { condominiums: Condominium[] }) => {
+    if (!currentUser) return;
+    
+    try {
+      // Para cada condominio en los datos importados
+      for (const condominium of data.condominiums) {
+        // Verificar si ya existe
+        const existingIndex = condominiums.findIndex((c) => c.id === condominium.id);
+        
+        if (existingIndex === -1) {
+          // Si no existe, crear un nuevo documento
+          await addDoc(collection(db, "condominiums"), {
+            name: condominium.name,
+            address: condominium.address,
+            apartments: condominium.apartments || [],
+            userId: currentUser.uid,
+            createdAt: new Date(),
+            importedAt: new Date()
+          });
+        } else {
+          // Si existe, actualizar con los nuevos apartamentos
+          const condominiumRef = doc(db, "condominiums", condominium.id);
+          const existingApartmentIds = new Set(
+            condominiums[existingIndex].apartments.map((a) => a.id)
+          );
+          
+          // Fusionar apartamentos
+          const mergedApartments = [...condominiums[existingIndex].apartments];
+          
+          condominium.apartments.forEach((importedApartment) => {
+            if (!existingApartmentIds.has(importedApartment.id)) {
+              mergedApartments.push(importedApartment);
+            }
+          });
+          
+          await updateDoc(condominiumRef, {
+            apartments: mergedApartments,
+            updatedAt: new Date(),
+            importedAt: new Date()
+          });
         }
-        return condominium;
-      })
-    );
+      }
+      
+      toast.success("Datos importados correctamente");
+    } catch (error) {
+      console.error("Error importing data:", error);
+      toast.error("Error al importar los datos");
+      throw error;
+    }
   };
 
-  // Update apartment
-  const updateApartment = (updatedApartment: Apartment) => {
-    setCondominiums(
-      condominiums.map((condominium) => {
-        if (condominium.id === updatedApartment.condominiumId) {
-          return {
-            ...condominium,
-            apartments: condominium.apartments.map((apartment) =>
-              apartment.id === updatedApartment.id ? updatedApartment : apartment
-            ),
-          };
-        }
-        return condominium;
-      })
-    );
-  };
-
-  // Delete apartment
-  const deleteApartment = (id: string) => {
-    setCondominiums(
-      condominiums.map((condominium) => {
-        return {
-          ...condominium,
-          apartments: condominium.apartments.filter((apartment) => apartment.id !== id),
-        };
-      })
-    );
-  };
-
-  // Import data
-  const importData = (data: { condominiums: Condominium[] }) => {
-    setCondominiums(data.condominiums);
-  };
-
-  // Export data
+  // Exportar datos
   const exportData = () => {
     return { condominiums };
   };
 
-  // Generate sharing code for a condominium
+  // Generar código de compartir para un condominio
   const generateSharingCode = (condominiumId: string) => {
     const condominium = condominiums.find((c) => c.id === condominiumId);
     if (!condominium) return "";
     
     const dataToShare = { condominiums: [condominium] };
-    const encodedData = btoa(JSON.stringify(dataToShare));
-    // Create a 6-digit code (in a real app, you'd store this in a database)
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    // In a real app, you'd store the code and data in a database
-    // For now, we'll just return the encoded data as the "code"
-    return encodedData;
+    return btoa(JSON.stringify(dataToShare));
   };
 
-  // Import from sharing code
-  const importFromSharingCode = (code: string) => {
+  // Importar desde código de compartir
+  const importFromSharingCode = async (code: string) => {
     try {
-      // In a real app, you'd use the code to lookup the shared data from a database
-      // For now, we're assuming the code is the encoded data
       const decodedData = JSON.parse(atob(code));
       if (decodedData.condominiums) {
-        // Merge with existing data
-        const newCondominiums = [...condominiums];
-        decodedData.condominiums.forEach((importedCondominium: Condominium) => {
-          // Check if the condominium already exists
-          const existingIndex = newCondominiums.findIndex(
-            (c) => c.id === importedCondominium.id
-          );
-          if (existingIndex === -1) {
-            newCondominiums.push(importedCondominium);
-          } else {
-            // Merge apartments if condominium exists
-            const existingApartmentIds = new Set(
-              newCondominiums[existingIndex].apartments.map((a) => a.id)
-            );
-            importedCondominium.apartments.forEach((importedApartment) => {
-              if (!existingApartmentIds.has(importedApartment.id)) {
-                newCondominiums[existingIndex].apartments.push(importedApartment);
-              }
-            });
-          }
-        });
-        setCondominiums(newCondominiums);
+        await importData(decodedData);
         return true;
       }
       return false;
     } catch (error) {
       console.error("Error importing data:", error);
+      toast.error("Error al importar los datos");
       return false;
     }
   };
 
   const value = {
     condominiums,
+    loading,
     addCondominium,
     updateCondominium,
     deleteCondominium,
@@ -205,7 +347,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 export const useApp = () => {
   const context = useContext(AppContext);
   if (context === undefined) {
-    throw new Error("useApp must be used within an AppProvider");
+    throw new Error("useApp debe ser usado dentro de un AppProvider");
   }
   return context;
 };
