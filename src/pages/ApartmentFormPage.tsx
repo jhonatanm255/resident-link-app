@@ -96,7 +96,7 @@ const ApartmentFormPage = () => {
 
   const handleDelete = () => {
     if (window.confirm("¿Estás seguro que deseas eliminar este apartamento? Esta acción no se puede deshacer.")) {
-      deleteApartment(apartmentId as string);
+      deleteApartment(apartmentId as string, condominiumId as string);
       navigate(`/condominiums/${condominiumId}`);
     }
   };
