@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useRef } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AppButton } from "@/components/ui/app-button";
 import { useApp } from "@/contexts/AppContext";
@@ -14,7 +15,7 @@ import {
 } from "lucide-react";
 import QRCode from "react-qr-code";
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const SharePage = () => {
   const { condominiums, generateSharingCode, importFromSharingCode } = useApp();
@@ -22,8 +23,6 @@ const SharePage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const initialCondominiumId = queryParams.get("condominiumId");
-
-  const { toast } = useToast();
 
   const [selectedCondominiumId, setSelectedCondominiumId] = useState(initialCondominiumId || "");
   const [shareModeQR, setShareModeQR] = useState(true); // true for QR, false for code
@@ -36,6 +35,8 @@ const SharePage = () => {
   const [importSuccess, setImportSuccess] = useState(false);
   const [importError, setImportError] = useState("");
   const [scannerInitialized, setScannerInitialized] = useState(false);
+  
+  const scannerRef = useRef(null);
 
   useEffect(() => {
     if (selectedCondominiumId) {
@@ -47,11 +48,19 @@ const SharePage = () => {
   }, [selectedCondominiumId, generateSharingCode]);
 
   useEffect(() => {
-    let scanner = null;
-    
-    if (activeTab === "receive" && receiveModeQR && !scannerInitialized) {
+    // Limpiar el escáner anterior si existe
+    if (scannerRef.current) {
       try {
-        scanner = new Html5QrcodeScanner(
+        scannerRef.current.clear().catch(console.error);
+      } catch (e) {
+        console.error("Error al limpiar escáner:", e);
+      }
+      scannerRef.current = null;
+    }
+    
+    if (activeTab === "receive" && receiveModeQR && !scannerRef.current) {
+      try {
+        const scanner = new Html5QrcodeScanner(
           "qr-reader",
           { 
             fps: 10, 
@@ -63,13 +72,11 @@ const SharePage = () => {
           false
         );
         
+        scannerRef.current = scanner;
+        
         scanner.render(
           (decodedText) => {
             handleQRCodeScan(decodedText);
-            toast({
-              title: "Código QR escaneado",
-              description: "Los datos han sido importados correctamente",
-            });
           },
           (error) => {
             console.warn("Error de escaneo:", error);
@@ -79,47 +86,38 @@ const SharePage = () => {
         setScannerInitialized(true);
       } catch (error) {
         console.error("Error al inicializar el escáner:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "No se pudo inicializar el escáner QR",
-        });
+        toast.error("No se pudo inicializar el escáner QR");
       }
     }
     
     return () => {
-      if (scanner) {
-        scanner.clear().catch(console.error);
+      if (scannerRef.current) {
+        try {
+          scannerRef.current.clear().catch(console.error);
+        } catch (e) {
+          console.error("Error al limpiar escáner:", e);
+        }
+        scannerRef.current = null;
       }
     };
-  }, [activeTab, receiveModeQR, scannerInitialized, toast]);
-
-  useEffect(() => {
-    setScannerInitialized(false);
   }, [activeTab, receiveModeQR]);
 
-  const handleQRCodeScan = (decodedText: string) => {
+  const handleQRCodeScan = (decodedText) => {
     try {
       const success = importFromSharingCode(decodedText);
       if (success) {
         setImportSuccess(true);
         setImportError("");
-        toast({
-          title: "¡Datos importados correctamente!",
-          description: "Los datos han sido importados correctamente",
-        });
+        toast.success("¡Datos importados correctamente!");
         setTimeout(() => setImportSuccess(false), 3000);
       } else {
         setImportError("El código QR no contiene datos válidos");
+        toast.error("El código QR no contiene datos válidos");
       }
     } catch (error) {
       setImportError("Error al importar datos del código QR");
       console.error("Import error:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo importar los datos",
-      });
+      toast.error("No se pudo importar los datos");
     }
   };
 
@@ -127,6 +125,7 @@ const SharePage = () => {
     try {
       if (!receiveCode.trim()) {
         setImportError("Ingresa un código para importar");
+        toast.error("Ingresa un código para importar");
         return;
       }
       
@@ -135,46 +134,46 @@ const SharePage = () => {
         setImportSuccess(true);
         setImportError("");
         setReceiveCode("");
-        toast({
-          title: "¡Datos importados correctamente!",
-          description: "Los datos han sido importados correctamente",
-        });
+        toast.success("¡Datos importados correctamente!");
         setTimeout(() => setImportSuccess(false), 3000);
       } else {
         setImportError("El código ingresado no es válido");
+        toast.error("El código ingresado no es válido");
       }
     } catch (error) {
       setImportError("Error al importar datos del código");
       console.error("Import error:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo importar los datos",
-      });
+      toast.error("No se pudo importar los datos");
     }
   };
 
   const copyCodeToClipboard = () => {
     if (!shareCode) return;
     
-    navigator.clipboard.writeText(shareCode).then(
-      () => {
+    navigator.clipboard.writeText(shareCode)
+      .then(() => {
         setCodeCopied(true);
-        toast({
-          title: "¡Código copiado!",
-          description: "El código ha sido copiado al portapapeles",
-        });
+        toast.success("¡Código copiado al portapapeles!");
         setTimeout(() => setCodeCopied(false), 2000);
-      },
-      (err) => {
+      })
+      .catch((err) => {
         console.error("Error al copiar código:", err);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "No se pudo copiar el código",
-        });
+        toast.error("No se pudo copiar el código");
+      });
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    // Reiniciamos el escáner cuando cambiamos de pestaña
+    setScannerInitialized(false);
+    if (scannerRef.current) {
+      try {
+        scannerRef.current.clear().catch(console.error);
+      } catch (e) {
+        console.error("Error al limpiar escáner:", e);
       }
-    );
+      scannerRef.current = null;
+    }
   };
 
   return (
@@ -196,7 +195,7 @@ const SharePage = () => {
                   ? "text-primary-700 border-b-2 border-primary-600" 
                   : "text-gray-500 hover:text-gray-700"
               }`}
-              onClick={() => setActiveTab("share")}
+              onClick={() => handleTabChange("share")}
             >
               <div className="flex items-center justify-center">
                 <Send size={18} className="mr-2" />
@@ -209,7 +208,7 @@ const SharePage = () => {
                   ? "text-primary-700 border-b-2 border-primary-600" 
                   : "text-gray-500 hover:text-gray-700"
               }`}
-              onClick={() => setActiveTab("receive")}
+              onClick={() => handleTabChange("receive")}
             >
               <div className="flex items-center justify-center">
                 <Download size={18} className="mr-2" />
@@ -307,7 +306,7 @@ const SharePage = () => {
                         />
                         <button
                           onClick={copyCodeToClipboard}
-                          className="bg-primary-600 hover:bg-primary-700 border border-primary-600 text-white px-4 py-2 rounded-r-md"
+                          className="bg-primary-600 hover:bg-primary-700 border border-primary-600 text-white px-4 py-2 rounded-r-md transition-colors"
                         >
                           {codeCopied ? <Check size={18} /> : <Copy size={18} />}
                         </button>
@@ -395,7 +394,7 @@ const SharePage = () => {
                     />
                     <button
                       onClick={handleImportFromCode}
-                      className="bg-primary-600 hover:bg-primary-700 border border-primary-600 text-white px-4 py-2 rounded-r-md"
+                      className="bg-primary-600 hover:bg-primary-700 border border-primary-600 text-white px-4 py-2 rounded-r-md transition-colors"
                     >
                       <Download size={18} />
                     </button>

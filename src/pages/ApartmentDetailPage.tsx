@@ -12,6 +12,7 @@ import {
   Car, 
   Package
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 const ApartmentDetailPage = () => {
   const { condominiums } = useApp();
@@ -37,7 +38,12 @@ const ApartmentDetailPage = () => {
 
   return (
     <AppLayout title={`Apartamento ${apartment.apartmentNumber}`}>
-      <div className="max-w-3xl mx-auto">
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.3 }}
+        className="max-w-3xl mx-auto"
+      >
         <button
           onClick={() => navigate(-1)}
           className="flex items-center text-gray-600 mb-6 hover:text-gray-900"
@@ -46,7 +52,12 @@ const ApartmentDetailPage = () => {
           <span>Volver</span>
         </button>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <motion.div 
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="bg-white rounded-lg shadow-md p-6 mb-6"
+        >
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <div className="flex items-center mb-4 md:mb-0">
               <div className="bg-primary-50 p-3 rounded-full mr-4">
@@ -67,7 +78,12 @@ const ApartmentDetailPage = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
+          >
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="text-sm font-medium text-gray-500 mb-1">Número de Apartamento</h3>
               <p className="text-lg font-semibold">{apartment.apartmentNumber}</p>
@@ -98,22 +114,29 @@ const ApartmentDetailPage = () => {
                 )}
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
+          >
             <h2 className="text-lg font-semibold mb-4">Residentes</h2>
             {apartment.residents.length > 0 ? (
               <div className="space-y-3">
-                {apartment.residents.map((resident) => (
-                  <div
+                {apartment.residents.map((resident, index) => (
+                  <motion.div
                     key={resident.id}
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.3 + (index * 0.1) }}
                     className="flex items-center p-3 bg-gray-50 rounded-lg"
                   >
                     <div className="bg-primary-100 p-2 rounded-full mr-3">
                       <User className="h-5 w-5 text-primary-700" />
                     </div>
                     <span className="font-medium">{resident.name}</span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             ) : (
@@ -130,9 +153,9 @@ const ApartmentDetailPage = () => {
                 </Link>
               </div>
             )}
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </AppLayout>
   );
 };
