@@ -1,4 +1,3 @@
-
 import React from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AppButton } from "@/components/ui/app-button";
@@ -39,11 +38,13 @@ const CondominiumDetailPage = () => {
   }
 
   const filteredApartments = condominium.apartments.filter((apartment) => {
-    const apartmentNumber = apartment.apartmentNumber.toLowerCase();
-    const residentNames = apartment.residents.map(r => r.name.toLowerCase()).join(" ");
-    const search = searchTerm.toLowerCase();
-    
-    return apartmentNumber.includes(search) || residentNames.includes(search);
+    const searchTermLower = searchTerm.toLowerCase();
+    return (
+      apartment.apartmentNumber.toLowerCase().includes(searchTermLower) ||
+      apartment.residents.some(r => r.name.toLowerCase().includes(searchTermLower)) ||
+      (apartment.parkingNumber && apartment.parkingNumber.toLowerCase().includes(searchTermLower)) ||
+      (apartment.storageUnitNumber && apartment.storageUnitNumber.toLowerCase().includes(searchTermLower))
+    );
   });
 
   return (
@@ -117,7 +118,7 @@ const CondominiumDetailPage = () => {
             <input
               type="text"
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-              placeholder="Buscar por número o residente..."
+              placeholder="Buscar por número, residente, estacionamiento o bodega..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AppButton } from "@/components/ui/app-button";
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 import QRCode from "react-qr-code";
 import { Html5QrcodeScanner } from "html5-qrcode";
+import { useToast } from "@/hooks/use-toast";
 
 const SharePage = () => {
   const { condominiums, generateSharingCode, importFromSharingCode } = useApp();
@@ -22,6 +22,8 @@ const SharePage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const initialCondominiumId = queryParams.get("condominiumId");
+
+  const { toast } = useToast();
 
   const [selectedCondominiumId, setSelectedCondominiumId] = useState(initialCondominiumId || "");
   const [shareModeQR, setShareModeQR] = useState(true); // true for QR, false for code
@@ -35,7 +37,6 @@ const SharePage = () => {
   const [importError, setImportError] = useState("");
   const [scannerInitialized, setScannerInitialized] = useState(false);
 
-  // Generate code when a condominium is selected
   useEffect(() => {
     if (selectedCondominiumId) {
       const code = generateSharingCode(selectedCondominiumId);
@@ -45,48 +46,54 @@ const SharePage = () => {
     }
   }, [selectedCondominiumId, generateSharingCode]);
 
-  // Initialize QR scanner
   useEffect(() => {
-    let scanner: Html5QrcodeScanner | null = null;
+    let scanner = null;
     
     if (activeTab === "receive" && receiveModeQR && !scannerInitialized) {
       try {
         scanner = new Html5QrcodeScanner(
           "qr-reader",
-          { fps: 10, qrbox: { width: 250, height: 250 } },
+          { 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 },
+            experimentalFeatures: {
+              useBarCodeDetectorIfSupported: true
+            }
+          },
           false
         );
         
         scanner.render(
           (decodedText) => {
             handleQRCodeScan(decodedText);
-            // Don't clear scanner after successful scan to allow multiple imports
+            toast({
+              title: "Código QR escaneado",
+              description: "Los datos han sido importados correctamente",
+            });
           },
           (error) => {
-            // Handle scan errors silently - don't show to user unless they try to import
-            console.error("QR scan error:", error);
+            console.warn("Error de escaneo:", error);
           }
         );
         
         setScannerInitialized(true);
       } catch (error) {
-        console.error("Error initializing QR scanner:", error);
+        console.error("Error al inicializar el escáner:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudo inicializar el escáner QR",
+        });
       }
     }
     
-    // Cleanup
     return () => {
       if (scanner) {
-        try {
-          scanner.clear();
-        } catch (error) {
-          console.error("Error clearing scanner:", error);
-        }
+        scanner.clear().catch(console.error);
       }
     };
-  }, [activeTab, receiveModeQR, scannerInitialized]);
+  }, [activeTab, receiveModeQR, scannerInitialized, toast]);
 
-  // Reset scanner initialization flag when switching tabs or modes
   useEffect(() => {
     setScannerInitialized(false);
   }, [activeTab, receiveModeQR]);
@@ -97,7 +104,10 @@ const SharePage = () => {
       if (success) {
         setImportSuccess(true);
         setImportError("");
-        // Show success message briefly
+        toast({
+          title: "¡Datos importados correctamente!",
+          description: "Los datos han sido importados correctamente",
+        });
         setTimeout(() => setImportSuccess(false), 3000);
       } else {
         setImportError("El código QR no contiene datos válidos");
@@ -105,6 +115,11 @@ const SharePage = () => {
     } catch (error) {
       setImportError("Error al importar datos del código QR");
       console.error("Import error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo importar los datos",
+      });
     }
   };
 
@@ -120,7 +135,10 @@ const SharePage = () => {
         setImportSuccess(true);
         setImportError("");
         setReceiveCode("");
-        // Show success message briefly
+        toast({
+          title: "¡Datos importados correctamente!",
+          description: "Los datos han sido importados correctamente",
+        });
         setTimeout(() => setImportSuccess(false), 3000);
       } else {
         setImportError("El código ingresado no es válido");
@@ -128,6 +146,11 @@ const SharePage = () => {
     } catch (error) {
       setImportError("Error al importar datos del código");
       console.error("Import error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo importar los datos",
+      });
     }
   };
 
@@ -137,10 +160,19 @@ const SharePage = () => {
     navigator.clipboard.writeText(shareCode).then(
       () => {
         setCodeCopied(true);
+        toast({
+          title: "¡Código copiado!",
+          description: "El código ha sido copiado al portapapeles",
+        });
         setTimeout(() => setCodeCopied(false), 2000);
       },
       (err) => {
         console.error("Error al copiar código:", err);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudo copiar el código",
+        });
       }
     );
   };
@@ -157,7 +189,6 @@ const SharePage = () => {
         </button>
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* Tabs */}
           <div className="flex border-b">
             <button
               className={`flex-1 py-4 font-medium text-center ${
@@ -187,12 +218,10 @@ const SharePage = () => {
             </button>
           </div>
 
-          {/* Share Data Tab */}
           {activeTab === "share" && (
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-6">Compartir Datos de Condominio</h2>
 
-              {/* Condominium Selection */}
               <div className="mb-6">
                 <label htmlFor="condominium" className="block text-sm font-medium text-gray-700 mb-2">
                   Selecciona un Condominio
@@ -212,7 +241,6 @@ const SharePage = () => {
                 </select>
               </div>
 
-              {/* Share Mode Selector */}
               <div className="mb-6">
                 <div className="flex p-1 bg-gray-100 rounded-md">
                   <button
@@ -244,7 +272,6 @@ const SharePage = () => {
                 </div>
               </div>
 
-              {/* Share Content */}
               {!selectedCondominiumId ? (
                 <div className="text-center py-10">
                   <QrCode size={64} className="mx-auto text-gray-300 mb-4" />
@@ -298,12 +325,10 @@ const SharePage = () => {
             </div>
           )}
 
-          {/* Receive Data Tab */}
           {activeTab === "receive" && (
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-6">Recibir Datos de Condominio</h2>
 
-              {/* Receive Mode Selector */}
               <div className="mb-6">
                 <div className="flex p-1 bg-gray-100 rounded-md">
                   <button
@@ -335,7 +360,6 @@ const SharePage = () => {
                 </div>
               </div>
 
-              {/* Success/Error Message */}
               {importSuccess && (
                 <div className="mb-6 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md flex items-center">
                   <Check className="mr-2" size={18} />
@@ -349,7 +373,6 @@ const SharePage = () => {
                 </div>
               )}
 
-              {/* Receive Content */}
               {receiveModeQR ? (
                 <div className="text-center">
                   <div id="qr-reader" className="mx-auto mb-4" style={{ maxWidth: "500px" }}></div>
