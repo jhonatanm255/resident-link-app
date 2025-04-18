@@ -10,11 +10,6 @@ const config: CapacitorConfig = {
     url: "https://e225bd57-09c9-411e-8599-d3085ad88888.lovableproject.com?forceHideBadge=true",
     cleartext: true
   },
-  ios: {
-    contentInset: 'automatic',
-    scrollEnabled: true,
-    allowsLinkPreview: true,
-  },
   android: {
     allowMixedContent: true,
   }
