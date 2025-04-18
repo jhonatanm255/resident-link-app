@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -69,6 +70,8 @@ const RegisterPage = () => {
         return "La contraseña es demasiado débil";
       case "auth/popup-closed-by-user":
         return "Ventana de inicio de sesión cerrada";
+      case "auth/api-key-not-valid.-please-pass-a-valid-api-key.":
+        return "Error de configuración. Contacta al administrador";
       default:
         return "Ocurrió un error al crear la cuenta";
     }
