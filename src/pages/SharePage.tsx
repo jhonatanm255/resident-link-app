@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useApp } from '@/contexts/AppContext';
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from 'lucide-react';
@@ -18,8 +19,8 @@ const SharePage = () => {
         name: condo.name,
         apartments: condo.apartments.map(apt => ({
           id: apt.id,
-          number: apt.number,
-          resident: apt.resident
+          apartmentNumber: apt.apartmentNumber,
+          residents: apt.residents
         }))
       }))
     };
@@ -51,7 +52,7 @@ const SharePage = () => {
 
       {migrationCode && (
         <div className="mb-4">
-          <QRCode value={migrationCode} size={256} level="L" />
+          <QRCodeSVG value={migrationCode} size={256} level="L" />
         </div>
       )}
 

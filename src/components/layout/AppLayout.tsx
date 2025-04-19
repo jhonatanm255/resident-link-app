@@ -5,6 +5,7 @@ import { DesktopNavigation } from "./Navigation/DesktopNavigation";
 import { MobileNavigation } from "./Navigation/MobileNavigation";
 import { UserMenu } from "./UserMenu/UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
+import { X } from "lucide-react";
 
 interface AppLayoutProps {
   children: React.ReactNode;
