@@ -1,7 +1,6 @@
-
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Building2, QrCode, Menu, X, ChevronLeft, LogOut, UserRound } from "lucide-react";
+import { Home, Building2, QrCode, Menu, X, ChevronLeft, LogOut, UserRound, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,7 +48,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     navigate("/login");
   };
 
-  // Función para obtener las iniciales del email
   const getInitials = (email: string | null) => {
     if (!email) return "U";
     return email.charAt(0).toUpperCase();
@@ -57,7 +55,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      {/* Header - Móvil optimizado */}
       <header className="bg-primary-700 text-white shadow-md safe-top">
         <div className="flex items-center justify-between p-4 pt-safe-top">
           <div className="flex items-center">
@@ -105,10 +102,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         </div>
       </header>
 
-      {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar - Desktop */}
-        <div className="hidden md:flex md:w-64 flex-col bg-white shadow-md">
+        <div className={`hidden md:flex md:w-64 flex-col bg-white shadow-md transition-all duration-300 ease-in-out ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <nav className="flex-1 pt-4">
             <ul>
               <li className="mb-2">
@@ -126,28 +121,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               </li>
               <li className="mb-2">
                 <Link
-                  to="/condominiums"
+                  to="/dashboard"
                   className={`flex items-center px-4 py-3 ${
-                    location.pathname.includes("/condominiums")
+                    location.pathname === "/dashboard"
                       ? "bg-primary-50 text-primary-700 border-r-4 border-primary-700"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
-                  <Building2 size={20} className="mr-3" />
-                  <span>Condominios</span>
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link
-                  to="/share"
-                  className={`flex items-center px-4 py-3 ${
-                    location.pathname === "/share"
-                      ? "bg-primary-50 text-primary-700 border-r-4 border-primary-700"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  <QrCode size={20} className="mr-3" />
-                  <span>Compartir Datos</span>
+                  <LayoutDashboard size={20} className="mr-3" />
+                  <span>Dashboard</span>
                 </Link>
               </li>
             </ul>
@@ -177,7 +159,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           )}
         </div>
 
-        {/* Mobile menu - Drawer style */}
         {menuOpen && (
           <div className="absolute inset-0 z-50 md:hidden">
             <div 
@@ -229,30 +210,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
                   </li>
                   <li className="mb-2">
                     <Link
-                      to="/condominiums"
+                      to="/dashboard"
                       className={`flex items-center px-4 py-3 ${
-                        location.pathname.includes("/condominiums")
+                        location.pathname === "/dashboard"
                           ? "bg-primary-50 text-primary-700 border-r-4 border-primary-700"
                           : "text-gray-700 hover:bg-gray-100"
                       }`}
                       onClick={() => setMenuOpen(false)}
                     >
-                      <Building2 size={20} className="mr-3" />
-                      <span>Condominios</span>
-                    </Link>
-                  </li>
-                  <li className="mb-2">
-                    <Link
-                      to="/share"
-                      className={`flex items-center px-4 py-3 ${
-                        location.pathname === "/share"
-                          ? "bg-primary-50 text-primary-700 border-r-4 border-primary-700"
-                          : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <QrCode size={20} className="mr-3" />
-                      <span>Compartir Datos</span>
+                      <LayoutDashboard size={20} className="mr-3" />
+                      <span>Dashboard</span>
                     </Link>
                   </li>
                   {currentUser && (
@@ -275,13 +242,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           </div>
         )}
 
-        {/* Content - Con protección para dispositivos móviles */}
         <main className="flex-1 p-4 overflow-auto pb-safe-bottom">
           {children}
         </main>
       </div>
 
-      {/* Footer Navigation - Solo Móvil */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around pb-safe-bottom">
         <Link
           to="/"
@@ -295,26 +260,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           <span className="text-xs mt-1">Inicio</span>
         </Link>
         <Link
-          to="/condominiums"
+          to="/dashboard"
           className={`flex flex-col items-center py-2 px-4 ${
-            location.pathname.includes("/condominiums") && !location.pathname.includes("/share")
+            location.pathname === "/dashboard"
               ? "text-primary-700"
               : "text-gray-600"
           }`}
         >
-          <Building2 size={24} />
-          <span className="text-xs mt-1">Condominios</span>
-        </Link>
-        <Link
-          to="/share"
-          className={`flex flex-col items-center py-2 px-4 ${
-            location.pathname === "/share"
-              ? "text-primary-700"
-              : "text-gray-600"
-          }`}
-        >
-          <QrCode size={24} />
-          <span className="text-xs mt-1">Compartir</span>
+          <LayoutDashboard size={24} />
+          <span className="text-xs mt-1">Dashboard</span>
         </Link>
       </div>
     </div>
