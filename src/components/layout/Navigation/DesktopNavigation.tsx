@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, LayoutDashboard } from 'lucide-react';
+import { Home, LayoutDashboard, Share } from 'lucide-react';
 
 export const DesktopNavigation: React.FC = () => {
   const location = useLocation();
@@ -33,6 +33,19 @@ export const DesktopNavigation: React.FC = () => {
           >
             <LayoutDashboard size={20} className="mr-3" />
             <span>Dashboard</span>
+          </Link>
+        </li>
+        <li className="mb-2">
+          <Link
+            to="/share"
+            className={`flex items-center px-4 py-3 ${
+              location.pathname === "/share"
+                ? "bg-primary-50 text-primary-700 border-r-4 border-primary-700"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            <Share size={20} className="mr-3" />
+            <span>Compartir</span>
           </Link>
         </li>
       </ul>

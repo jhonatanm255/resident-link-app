@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, LayoutDashboard } from 'lucide-react';
+import { Home, LayoutDashboard, Share } from 'lucide-react';
 
 export const MobileNavigation: React.FC = () => {
   const location = useLocation();
@@ -29,6 +29,17 @@ export const MobileNavigation: React.FC = () => {
       >
         <LayoutDashboard size={24} />
         <span className="text-xs mt-1">Dashboard</span>
+      </Link>
+      <Link
+        to="/share"
+        className={`flex flex-col items-center py-2 px-4 ${
+          location.pathname === "/share"
+            ? "text-primary-700"
+            : "text-gray-600"
+        }`}
+      >
+        <Share size={24} />
+        <span className="text-xs mt-1">Compartir</span>
       </Link>
     </div>
   );

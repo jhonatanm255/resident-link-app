@@ -5,6 +5,7 @@ import { useApp } from '@/contexts/AppContext';
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { AppLayout } from "@/components/layout/AppLayout";
 
 const SharePage = () => {
   const { condominiums } = useApp();
@@ -13,6 +14,7 @@ const SharePage = () => {
   const { toast } = useToast();
 
   const generateMigrationCode = () => {
+    // Generar un código más simplificado para el QR
     const essentialData = {
       condominiums: condominiums.map(condo => ({
         id: condo.id,
@@ -40,42 +42,44 @@ const SharePage = () => {
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Compartir Datos</h2>
-      <p className="text-gray-600 mb-4">
-        Genera un código QR para compartir la información de tus condominios y apartamentos.
-      </p>
+    <AppLayout title="Compartir Datos">
+      <div className="p-6">
+        <h2 className="text-2xl font-bold mb-4">Compartir Datos</h2>
+        <p className="text-gray-600 mb-4">
+          Genera un código QR para compartir la información de tus condominios y apartamentos.
+        </p>
 
-      <Button onClick={generateMigrationCode} className="mb-4">
-        Generar Código QR
-      </Button>
+        <Button onClick={generateMigrationCode} className="mb-4">
+          Generar Código QR
+        </Button>
 
-      {migrationCode && (
-        <div className="mb-4">
-          <QRCodeSVG value={migrationCode} size={256} level="L" />
-        </div>
-      )}
-
-      {migrationCode && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between">
-            <Button variant="outline" onClick={handleCopyClick} disabled={isCopied}>
-              {isCopied ? (
-                <>
-                  <Check className="mr-2 h-4 w-4" />
-                  Copiado!
-                </>
-              ) : (
-                <>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copiar Código
-                </>
-              )}
-            </Button>
+        {migrationCode && (
+          <div className="mb-4">
+            <QRCodeSVG value={migrationCode} size={256} level="L" />
           </div>
-        </div>
-      )}
-    </div>
+        )}
+
+        {migrationCode && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between">
+              <Button variant="outline" onClick={handleCopyClick} disabled={isCopied}>
+                {isCopied ? (
+                  <>
+                    <Check className="mr-2 h-4 w-4" />
+                    Copiado!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copiar Código
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </AppLayout>
   );
 };
 

@@ -39,7 +39,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
       <div className="flex flex-1 overflow-hidden">
         <div
-          className={`hidden md:flex md:w-64 flex-col bg-white shadow-md transition-all duration-300 ease-in-out ${
+          className={`hidden md:flex md:w-64 flex-col bg-white shadow-md transform transition-transform duration-300 ease-in-out ${
             menuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -59,7 +59,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               className="absolute inset-0 bg-black opacity-50"
               onClick={() => setMenuOpen(false)}
             ></div>
-            <div className="absolute left-0 top-0 h-full w-64 bg-white shadow-md pt-safe-top">
+            <div className="absolute left-0 top-0 h-full w-64 bg-white shadow-md pt-safe-top transform transition-transform duration-300 ease-in-out">
               <div className="flex justify-end p-4">
                 <button
                   onClick={() => setMenuOpen(false)}
