@@ -18,17 +18,13 @@ const SharePage = () => {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   const generateQR = () => {
-    // Simplificar los datos a compartir
+    // Simplify QR data to just the minimal condominium information
     const simpleData = condominiums.map(condo => ({
       id: condo.id,
-      name: condo.name,
-      apartments: condo.apartments.map(apt => ({
-        id: apt.id,
-        apartmentNumber: apt.apartmentNumber
-      }))
+      name: condo.name
     }));
     
-    const encoded = btoa(JSON.stringify({ condominiums: simpleData }));
+    const encoded = btoa(JSON.stringify(simpleData));
     setQrData(encoded);
   };
 
@@ -44,15 +40,19 @@ const SharePage = () => {
 
   const startScanner = () => {
     setIsScanning(true);
+    
+    // Use a timeout to ensure clean scanner initialization
     setTimeout(() => {
+      // Clear any existing scanner
       if (scannerRef.current) {
         scannerRef.current.clear();
       }
       
+      // Initialize new scanner with simplified options
       scannerRef.current = new Html5QrcodeScanner(
         "reader",
         { 
-          fps: 5, // Reducido para mejor rendimiento
+          fps: 10, // Slightly increased from previous version
           qrbox: 250,
           rememberLastUsedCamera: true
         },
@@ -61,29 +61,44 @@ const SharePage = () => {
       
       scannerRef.current.render(
         async (decodedText) => {
-          console.log("QR escaneado:", decodedText);
-          const success = await importFromSharingCode(decodedText);
-          
-          if (success) {
-            toast({
-              title: "¡Éxito!",
-              description: "Datos importados correctamente",
-            });
-          } else {
+          try {
+            const success = await importFromSharingCode(decodedText);
+            
+            if (success) {
+              toast({
+                title: "¡Éxito!",
+                description: "Datos importados correctamente",
+              });
+            } else {
+              toast({
+                title: "Error",
+                description: "No se pudo importar el código QR",
+                variant: "destructive",
+              });
+            }
+          } catch (error) {
+            console.error("Error scanning QR:", error);
             toast({
               title: "Error",
-              description: "No se pudo importar el código QR",
+              description: "Ocurrió un problema al escanear",
               variant: "destructive",
             });
           }
           
+          // Always clear scanner after attempt
           if (scannerRef.current) {
             scannerRef.current.clear();
           }
           setIsScanning(false);
         },
         (error) => {
-          console.error("Error de escaneo:", error);
+          console.error("QR Scan error:", error);
+          toast({
+            title: "Error de escaneo",
+            description: "No se pudo leer el código QR",
+            variant: "destructive",
+          });
+          setIsScanning(false);
         }
       );
     }, 100);
@@ -121,7 +136,7 @@ const SharePage = () => {
               <QRCodeSVG 
                 value={qrData}
                 size={256}
-                level="L"
+                level="M" // Changed from "L" to improve error correction
                 includeMargin={true}
               />
             </div>

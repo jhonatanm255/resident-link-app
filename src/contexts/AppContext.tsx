@@ -287,25 +287,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const importFromSharingCode = async (code: string) => {
     try {
-      console.log("Recibido código para importar:", code);
+      // Try decoding Base64 first
+      let decodedData = JSON.parse(atob(code));
       
-      let decodedData;
-      try {
-        decodedData = JSON.parse(atob(code));
-        console.log("Decodificado desde Base64:", decodedData);
-      } catch (error) {
-        console.log("Falló decodificación Base64, intentando JSON directo");
-        decodedData = JSON.parse(code);
-        console.log("Decodificado como JSON directo:", decodedData);
-      }
-      
-      if (decodedData && decodedData.condominiums) {
-        await importData(decodedData);
+      if (decodedData && Array.isArray(decodedData)) {
+        // Directly import the simplified condominium data
+        await importData({ condominiums: decodedData.map(condo => ({
+          ...condo,
+          apartments: [] // Reset apartments to avoid data conflicts
+        })) });
         return true;
       }
       return false;
     } catch (error) {
-      console.error("Error detallado en importFromSharingCode:", error);
+      console.error("Error importing sharing code:", error);
       toast.error("Error al importar los datos");
       return false;
     }
