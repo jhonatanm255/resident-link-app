@@ -12,15 +12,18 @@ import {
   ArrowLeft, 
   QrCode, 
   Search,
-  HomeIcon
+  HomeIcon,
+  Trash2
 } from "lucide-react";
 import { useState } from "react";
+import { DeleteCondominiumDialog } from "@/components/dialogs/DeleteCondominiumDialog";
 
 const CondominiumDetailPage = () => {
   const { condominiums } = useApp();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const condominium = condominiums.find((c) => c.id === id);
 
@@ -89,6 +92,14 @@ const CondominiumDetailPage = () => {
                   Compartir
                 </AppButton>
               </Link>
+              <AppButton
+                variant="outline"
+                leftIcon={<Trash2 size={16} />}
+                className="justify-center w-full sm:w-auto text-destructive border-destructive hover:bg-destructive/10"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                Eliminar
+              </AppButton>
             </div>
           </div>
         </div>
@@ -170,6 +181,13 @@ const CondominiumDetailPage = () => {
             )}
           </div>
         )}
+        
+        <DeleteCondominiumDialog 
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          condominiumId={condominium.id}
+          condominiumName={condominium.name}
+        />
       </div>
     </AppLayout>
   );
