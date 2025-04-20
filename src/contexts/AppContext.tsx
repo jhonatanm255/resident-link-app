@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { Condominium, Apartment, Resident } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -39,7 +38,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const { currentUser } = useAuth();
 
-  // Cargar datos desde Firestore cuando el usuario cambia
   useEffect(() => {
     if (!currentUser) {
       setCondominiums([]);
@@ -78,7 +76,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, [currentUser]);
 
-  // Agregar condominio
   const addCondominium = async (condominiumData: Omit<Condominium, "id" | "apartments">) => {
     if (!currentUser) return;
     
@@ -97,7 +94,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Actualizar condominio
   const updateCondominium = async (updatedCondominium: Condominium) => {
     if (!currentUser) return;
     
@@ -118,7 +114,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Eliminar condominio
   const deleteCondominium = async (id: string) => {
     if (!currentUser) return;
     
@@ -132,7 +127,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Agregar apartamento
   const addApartment = async (apartmentData: Omit<Apartment, "id">) => {
     if (!currentUser) return;
     
@@ -145,7 +139,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         ...apartmentData,
       };
       
-      // Obtener condominio actual
       const condominiumIndex = condominiums.findIndex(
         (c) => c.id === apartmentData.condominiumId
       );
@@ -154,13 +147,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         throw new Error("Condominio no encontrado");
       }
       
-      // Agregar apartamento a la matriz de apartamentos
       const updatedCondominium = {
         ...condominiums[condominiumIndex],
         apartments: [...condominiums[condominiumIndex].apartments, newApartment],
       };
       
-      // Actualizar en Firestore
       await updateDoc(condominiumRef, {
         apartments: updatedCondominium.apartments,
         updatedAt: new Date()
@@ -174,14 +165,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Actualizar apartamento
   const updateApartment = async (updatedApartment: Apartment) => {
     if (!currentUser) return;
     
     try {
       const condominiumRef = doc(db, "condominiums", updatedApartment.condominiumId);
       
-      // Obtener condominio actual
       const condominiumIndex = condominiums.findIndex(
         (c) => c.id === updatedApartment.condominiumId
       );
@@ -190,12 +179,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         throw new Error("Condominio no encontrado");
       }
       
-      // Actualizar apartamento en la matriz
       const updatedApartments = condominiums[condominiumIndex].apartments.map(
         (apartment) => (apartment.id === updatedApartment.id ? updatedApartment : apartment)
       );
       
-      // Actualizar en Firestore
       await updateDoc(condominiumRef, {
         apartments: updatedApartments,
         updatedAt: new Date()
@@ -209,14 +196,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Eliminar apartamento
   const deleteApartment = async (id: string, condominiumId: string) => {
     if (!currentUser) return;
     
     try {
       const condominiumRef = doc(db, "condominiums", condominiumId);
       
-      // Obtener condominio actual
       const condominiumIndex = condominiums.findIndex(
         (c) => c.id === condominiumId
       );
@@ -225,12 +210,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         throw new Error("Condominio no encontrado");
       }
       
-      // Filtrar apartamento a eliminar
       const updatedApartments = condominiums[condominiumIndex].apartments.filter(
         (apartment) => apartment.id !== id
       );
       
-      // Actualizar en Firestore
       await updateDoc(condominiumRef, {
         apartments: updatedApartments,
         updatedAt: new Date()
@@ -244,18 +227,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Importar datos
   const importData = async (data: { condominiums: Condominium[] }) => {
     if (!currentUser) return;
     
     try {
-      // Para cada condominio en los datos importados
       for (const condominium of data.condominiums) {
-        // Verificar si ya existe
         const existingIndex = condominiums.findIndex((c) => c.id === condominium.id);
         
         if (existingIndex === -1) {
-          // Si no existe, crear un nuevo documento
           await addDoc(collection(db, "condominiums"), {
             name: condominium.name,
             address: condominium.address,
@@ -265,13 +244,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             importedAt: new Date()
           });
         } else {
-          // Si existe, actualizar con los nuevos apartamentos
           const condominiumRef = doc(db, "condominiums", condominium.id);
           const existingApartmentIds = new Set(
             condominiums[existingIndex].apartments.map((a) => a.id)
           );
           
-          // Fusionar apartamentos
           const mergedApartments = [...condominiums[existingIndex].apartments];
           
           condominium.apartments.forEach((importedApartment) => {
@@ -296,12 +273,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Exportar datos
   const exportData = () => {
     return { condominiums };
   };
 
-  // Generar código de compartir para un condominio
   const generateSharingCode = (condominiumId: string) => {
     const condominium = condominiums.find((c) => c.id === condominiumId);
     if (!condominium) return "";
@@ -310,17 +285,27 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return btoa(JSON.stringify(dataToShare));
   };
 
-  // Importar desde código de compartir
   const importFromSharingCode = async (code: string) => {
     try {
-      const decodedData = JSON.parse(atob(code));
-      if (decodedData.condominiums) {
+      console.log("Recibido código para importar:", code);
+      
+      let decodedData;
+      try {
+        decodedData = JSON.parse(atob(code));
+        console.log("Decodificado desde Base64:", decodedData);
+      } catch (error) {
+        console.log("Falló decodificación Base64, intentando JSON directo");
+        decodedData = JSON.parse(code);
+        console.log("Decodificado como JSON directo:", decodedData);
+      }
+      
+      if (decodedData && decodedData.condominiums) {
         await importData(decodedData);
         return true;
       }
       return false;
     } catch (error) {
-      console.error("Error importing data:", error);
+      console.error("Error detallado en importFromSharingCode:", error);
       toast.error("Error al importar los datos");
       return false;
     }

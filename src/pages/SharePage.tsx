@@ -7,7 +7,7 @@ import { Copy, Check, Scan } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Html5QrcodeScannerConfig, Html5QrcodeScanner } from "html5-qrcode";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 const SharePage = () => {
   const { condominiums, importFromSharingCode } = useApp();
@@ -18,7 +18,7 @@ const SharePage = () => {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   const generateMigrationCode = () => {
-    // Generar un código más simplificado para el QR
+    // Generar un código para compartir en formato Base64
     const essentialData = {
       condominiums: condominiums.map(condo => ({
         id: condo.id,
@@ -30,7 +30,10 @@ const SharePage = () => {
         }))
       }))
     };
-    setMigrationCode(JSON.stringify(essentialData));
+    
+    // Convertir a Base64 para hacerlo compatible con QR y procesamiento
+    const base64Code = btoa(JSON.stringify(essentialData));
+    setMigrationCode(base64Code);
   };
 
   const handleCopyClick = () => {
@@ -48,21 +51,24 @@ const SharePage = () => {
   const startScanner = () => {
     setIsScanning(true);
     setTimeout(() => {
-      const config: Html5QrcodeScannerConfig = { 
-        fps: 10, 
-        qrbox: { width: 250, height: 250 },
-        rememberLastUsedCamera: true
-      };
+      if (scannerRef.current) {
+        scannerRef.current.clear();
+      }
       
       scannerRef.current = new Html5QrcodeScanner(
         "reader",
-        config,
+        { 
+          fps: 10, 
+          qrbox: { width: 250, height: 250 },
+          rememberLastUsedCamera: true
+        },
         /* verbose= */ false
       );
       
       scannerRef.current.render(
         (decodedText) => {
           // Éxito en escaneo
+          console.log("QR escaneado:", decodedText);
           handleScanSuccess(decodedText);
           if (scannerRef.current) {
             scannerRef.current.clear();
@@ -79,6 +85,7 @@ const SharePage = () => {
 
   const handleScanSuccess = async (decodedText: string) => {
     try {
+      console.log("Procesando código:", decodedText);
       const success = await importFromSharingCode(decodedText);
       if (success) {
         toast({
@@ -93,6 +100,7 @@ const SharePage = () => {
         });
       }
     } catch (error) {
+      console.error("Error detallado:", error);
       toast({
         title: "Error al procesar",
         description: "Ha ocurrido un error al procesar el código QR.",
@@ -129,7 +137,9 @@ const SharePage = () => {
 
         {migrationCode && (
           <div className="mb-4">
-            <QRCodeSVG value={migrationCode} size={256} level="L" />
+            <div className="p-4 bg-white rounded-lg shadow-sm inline-block">
+              <QRCodeSVG value={migrationCode} size={256} level="L" />
+            </div>
           </div>
         )}
 
