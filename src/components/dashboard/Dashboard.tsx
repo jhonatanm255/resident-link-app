@@ -1,6 +1,6 @@
 
 import React from 'react';
-import CondominiumPieChart from './CondominiumPieChart';
+import CondominiumPieChart from '../dashboard/CondominiumPieChart';
 import FeedbackStats from './FeedbackStats';
 
 const Dashboard = () => {
