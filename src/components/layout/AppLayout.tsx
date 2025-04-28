@@ -6,6 +6,8 @@ import { MobileNavigation } from "./Navigation/MobileNavigation";
 import { UserMenu } from "./UserMenu/UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import { X } from "lucide-react";
+import FeedbackModal from "@/components/FeedbackModal";
+import { useFeedbackModal } from "@/hooks/useFeedbackModal";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -22,6 +24,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { currentUser } = useAuth();
+  const { showFeedbackModal, setShowFeedbackModal } = useFeedbackModal();
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -87,6 +90,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       </div>
 
       <MobileNavigation />
+      
+      {/* Modal de Feedback */}
+      <FeedbackModal 
+        open={showFeedbackModal} 
+        onOpenChange={setShowFeedbackModal} 
+      />
     </div>
   );
 };
