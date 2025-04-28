@@ -9,40 +9,42 @@ export const useFeedbackModal = () => {
   const { currentUser } = useAuth();
 
   useEffect(() => {
+    // Versión temporal para pruebas - muestra el modal después de 10 segundos
+    const timer = setTimeout(() => {
+      if (currentUser) {
+        setShowFeedbackModal(true);
+      }
+    }, 10000);
+
+    return () => clearTimeout(timer);
+
+    /* Código original - comentado temporalmente
     const checkFeedbackEligibility = async () => {
       if (!currentUser) return;
 
       try {
-        // Verificar si el usuario ya ha proporcionado feedback
         const userSettingsDoc = await getDoc(doc(db, "userSettings", currentUser.uid));
         const userSettings = userSettingsDoc.data();
 
-        // Si ya ha enviado feedback, no mostrar el modal
         if (userSettings?.feedbackSubmitted) {
           return;
         }
 
-        // Verificar cuándo fue el primer inicio de sesión
         if (!userSettings?.firstLoginAt) {
-          // Si es la primera vez, registrar la fecha
           await setDoc(doc(db, "userSettings", currentUser.uid), {
             firstLoginAt: Timestamp.now(),
           }, { merge: true });
           return;
         }
 
-        // Calcular los días desde el primer inicio de sesión
         const firstLoginDate = userSettings.firstLoginAt.toDate();
         const daysSinceFirstLogin = Math.floor((new Date().getTime() - firstLoginDate.getTime()) / (1000 * 60 * 60 * 24));
 
-        // Mostrar el modal después de 2-3 días (usamos 2 días)
         if (daysSinceFirstLogin >= 2) {
-          // Verificar si han pasado al menos 24 horas desde la última vez que se mostró
           const lastPromptDate = userSettings?.lastFeedbackPromptAt?.toDate();
           if (!lastPromptDate || (new Date().getTime() - lastPromptDate.getTime()) > (24 * 60 * 60 * 1000)) {
             setShowFeedbackModal(true);
             
-            // Actualizar la última fecha de visualización
             await setDoc(doc(db, "userSettings", currentUser.uid), {
               lastFeedbackPromptAt: Timestamp.now(),
             }, { merge: true });
@@ -53,12 +55,12 @@ export const useFeedbackModal = () => {
       }
     };
 
-    // Verificar después de que la página haya cargado completamente
     const timer = setTimeout(() => {
       checkFeedbackEligibility();
     }, 2000);
 
     return () => clearTimeout(timer);
+    */
   }, [currentUser]);
 
   return {
@@ -66,3 +68,4 @@ export const useFeedbackModal = () => {
     setShowFeedbackModal,
   };
 };
+
