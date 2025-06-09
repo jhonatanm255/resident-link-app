@@ -33,11 +33,18 @@ export const DesktopNavigation: React.FC = () => {
       roles: ['admin']
     },
     {
+      to: "/committee",
+      icon: UserCog,
+      label: "Comité",
+      section: "committee",
+      roles: ['committee', 'admin']
+    },
+    {
       to: "/residents",
       icon: Users,
       label: "Residentes", 
       section: "residents",
-      roles: ['resident', 'admin', 'committee']
+      roles: ['resident', 'admin']
     },
     {
       to: "/concierge",
@@ -45,13 +52,6 @@ export const DesktopNavigation: React.FC = () => {
       label: "Conserjes",
       section: "concierge",
       roles: ['concierge', 'admin']
-    },
-    {
-      to: "/committee",
-      icon: UserCog,
-      label: "Comité",
-      section: "committee",
-      roles: ['committee', 'admin']
     },
     {
       to: "/dashboard",
@@ -79,9 +79,9 @@ export const DesktopNavigation: React.FC = () => {
 
   const mainItems = getSectionItems('main');
   const sectionItems = getSectionItems('admin')
+    .concat(getSectionItems('committee'))
     .concat(getSectionItems('residents'))
-    .concat(getSectionItems('concierge'))
-    .concat(getSectionItems('committee'));
+    .concat(getSectionItems('concierge'));
   const legacyItems = getSectionItems('legacy');
 
   return (
@@ -97,10 +97,10 @@ export const DesktopNavigation: React.FC = () => {
               <li key={item.to}>
                 <Link
                   to={item.to}
-                  className={`flex items-center px-4 py-3 mx-2 rounded-lg transition-all duration-200 group ${
+                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group ${
                     location.pathname === item.to
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm scale-105"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md"
                   }`}
                 >
                   <item.icon size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
@@ -123,10 +123,10 @@ export const DesktopNavigation: React.FC = () => {
               <li key={item.to}>
                 <Link
                   to={item.to}
-                  className={`flex items-center px-4 py-3 mx-2 rounded-lg transition-all duration-200 group ${
+                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group ${
                     location.pathname === item.to
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm scale-105"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md"
                   }`}
                 >
                   <item.icon size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
@@ -149,10 +149,10 @@ export const DesktopNavigation: React.FC = () => {
               <li key={item.to}>
                 <Link
                   to={item.to}
-                  className={`flex items-center px-4 py-3 mx-2 rounded-lg transition-all duration-200 group ${
+                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group ${
                     location.pathname === item.to
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm scale-105"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md"
                   }`}
                 >
                   <item.icon size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
@@ -168,7 +168,7 @@ export const DesktopNavigation: React.FC = () => {
       <div className="mt-auto pt-4 border-t border-border">
         <button
           onClick={handleLogout}
-          className="flex items-center w-full px-4 py-3 mx-2 rounded-lg text-destructive hover:bg-destructive/10 transition-all duration-200 group"
+          className="nav-link flex items-center w-full px-4 py-3 mx-2 rounded-lg text-destructive hover:bg-destructive/10 group"
         >
           <LogOut size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
           <span className="font-medium">Cerrar Sesión</span>
