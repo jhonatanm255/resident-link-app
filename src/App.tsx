@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +21,7 @@ import SharePage from "./pages/SharePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFound from "./pages/NotFound";
+import CommitteePage from "./pages/CommitteePage";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +62,11 @@ const App = () => (
                     <ConciergePage />
                   </ProtectedRoute>
                 } />
+                <Route path="/committee" element={
+                  <ProtectedRoute>
+                    <CommitteePage />
+                  </ProtectedRoute>
+                } />
                 
                 {/* Rutas existentes */}
                 <Route path="/home" element={
@@ -69,6 +74,7 @@ const App = () => (
                     <HomePage />
                   </ProtectedRoute>
                 } />
+                
                 <Route path="/condominiums" element={
                   <ProtectedRoute>
                     <CondominiumsPage />

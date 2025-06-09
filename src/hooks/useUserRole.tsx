@@ -8,6 +8,7 @@ export const useUserRole = () => {
   // En producción esto vendría de la base de datos
   const getUserRole = (email: string) => {
     if (email === 'jhonm21@gmail.com') return 'admin';
+    if (email.includes('committee') || email.includes('comite')) return 'committee';
     if (email.includes('concierge') || email.includes('conserje')) return 'concierge';
     return 'resident';
   };
@@ -18,6 +19,7 @@ export const useUserRole = () => {
     role,
     isAdmin: role === 'admin',
     isResident: role === 'resident',
-    isConcierge: role === 'concierge'
+    isConcierge: role === 'concierge',
+    isCommittee: role === 'committee'
   };
 };

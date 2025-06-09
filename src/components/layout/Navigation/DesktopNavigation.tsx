@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, LayoutDashboard, Share, Building2, Users, Shield, LogOut } from 'lucide-react';
+import { Home, LayoutDashboard, Share, Building2, Users, Shield, LogOut, UserCog } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -10,7 +10,7 @@ export const DesktopNavigation: React.FC = () => {
   const location = useLocation();
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const { role, isAdmin, isResident, isConcierge } = useUserRole();
+  const { role, isAdmin, isResident, isConcierge, isCommittee } = useUserRole();
 
   const handleLogout = async () => {
     await logout();
@@ -23,7 +23,7 @@ export const DesktopNavigation: React.FC = () => {
       icon: Home,
       label: "Inicio",
       section: "main",
-      roles: ['admin', 'resident', 'concierge']
+      roles: ['admin', 'resident', 'concierge', 'committee']
     },
     {
       to: "/admin",
@@ -37,7 +37,7 @@ export const DesktopNavigation: React.FC = () => {
       icon: Users,
       label: "Residentes", 
       section: "residents",
-      roles: ['resident', 'admin']
+      roles: ['resident', 'admin', 'committee']
     },
     {
       to: "/concierge",
@@ -47,18 +47,25 @@ export const DesktopNavigation: React.FC = () => {
       roles: ['concierge', 'admin']
     },
     {
+      to: "/committee",
+      icon: UserCog,
+      label: "Comité",
+      section: "committee",
+      roles: ['committee', 'admin']
+    },
+    {
       to: "/dashboard",
       icon: LayoutDashboard,
       label: "Dashboard",
       section: "legacy",
-      roles: ['admin', 'resident', 'concierge']
+      roles: ['admin', 'resident', 'concierge', 'committee']
     },
     {
       to: "/share",
       icon: Share,
       label: "Compartir",
       section: "legacy",
-      roles: ['admin', 'resident', 'concierge']
+      roles: ['admin', 'resident', 'concierge', 'committee']
     }
   ];
 
@@ -71,7 +78,10 @@ export const DesktopNavigation: React.FC = () => {
     navigationItems.filter(item => item.section === section);
 
   const mainItems = getSectionItems('main');
-  const sectionItems = getSectionItems('admin').concat(getSectionItems('residents'), getSectionItems('concierge'));
+  const sectionItems = getSectionItems('admin')
+    .concat(getSectionItems('residents'))
+    .concat(getSectionItems('concierge'))
+    .concat(getSectionItems('committee'));
   const legacyItems = getSectionItems('legacy');
 
   return (
