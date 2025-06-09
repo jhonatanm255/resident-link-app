@@ -2,12 +2,26 @@
 import React from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AppButton } from "@/components/ui/app-button";
-import { Building2, FileText, BarChart3, Settings, Users, Plus } from "lucide-react";
+import { Building2, FileText, BarChart3, Settings, Users, Plus, CreditCard, Truck, Gauge, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
+import { useUserRole } from "@/hooks/useUserRole";
+import { PaymentManagement } from "@/components/features/admin/PaymentManagement";
+import { ProviderManagement } from "@/components/features/admin/ProviderManagement";
 
 const AdminPage = () => {
   const { condominiums } = useApp();
+  const { isAdmin } = useUserRole();
+
+  if (!isAdmin) {
+    return (
+      <AppLayout title="Acceso Denegado">
+        <div className="text-center py-8">
+          <p className="text-gray-600 dark:text-gray-400">No tienes permisos para acceder a esta sección.</p>
+        </div>
+      </AppLayout>
+    );
+  }
 
   const adminFeatures = [
     {
@@ -35,6 +49,38 @@ const AdminPage = () => {
       stats: "En desarrollo"
     },
     {
+      title: "Pagos y Gastos Comunes",
+      description: "Gestionar pagos y gastos del condominio",
+      icon: CreditCard,
+      route: "/admin/payments",
+      color: "bg-emerald-500",
+      stats: "Sistema de pagos"
+    },
+    {
+      title: "Proveedores",
+      description: "Gestionar proveedores de servicios",
+      icon: Truck,
+      route: "/admin/providers",
+      color: "bg-orange-500",
+      stats: "Gestión de servicios"
+    },
+    {
+      title: "Mediciones",
+      description: "Publicar mediciones de servicios básicos",
+      icon: Gauge,
+      route: "/admin/measurements",
+      color: "bg-cyan-500",
+      stats: "Agua, gas, calefacción"
+    },
+    {
+      title: "Notificaciones",
+      description: "Enviar notificaciones a residentes",
+      icon: Bell,
+      route: "/admin/notifications",
+      color: "bg-red-500",
+      stats: "Comunicación inmediata"
+    },
+    {
       title: "Configuración",
       description: "Configurar parámetros del sistema",
       icon: Settings,
@@ -48,17 +94,17 @@ const AdminPage = () => {
     <AppLayout title="Administración">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">
             Panel de Administración
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Gestiona todos los aspectos administrativos de los condominios
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {adminFeatures.map((feature, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
               <div className={`${feature.color} p-4`}>
                 <div className="flex items-center text-white">
                   <feature.icon className="h-8 w-8 mr-3" />
@@ -69,7 +115,7 @@ const AdminPage = () => {
                 </div>
               </div>
               <div className="p-6">
-                <p className="text-gray-600 mb-4">{feature.description}</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">{feature.description}</p>
                 <Link to={feature.route}>
                   <AppButton fullWidth>
                     Acceder
@@ -80,10 +126,16 @@ const AdminPage = () => {
           ))}
         </div>
 
+        {/* Vista previa de funcionalidades */}
+        <div className="space-y-8">
+          <PaymentManagement />
+          <ProviderManagement />
+        </div>
+
         {/* Acciones Rápidas */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Acciones Rápidas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mt-8">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Acciones Rápidas</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Link to="/condominiums/new">
               <AppButton variant="outline" fullWidth leftIcon={<Plus size={18} />}>
                 Nuevo Condominio
@@ -92,6 +144,11 @@ const AdminPage = () => {
             <Link to="/dashboard">
               <AppButton variant="outline" fullWidth leftIcon={<BarChart3 size={18} />}>
                 Ver Estadísticas
+              </AppButton>
+            </Link>
+            <Link to="/admin/notifications">
+              <AppButton variant="outline" fullWidth leftIcon={<Bell size={18} />}>
+                Enviar Notificación
               </AppButton>
             </Link>
             <Link to="/share">
