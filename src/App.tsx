@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,7 +7,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider } from "@/contexts/AppContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Index from "./pages/Index";
 import HomePage from "./pages/HomePage";
+import AdminPage from "./pages/AdminPage";
+import ResidentsPage from "./pages/ResidentsPage";
+import ConciergePage from "./pages/ConciergePage";
 import CondominiumsPage from "./pages/CondominiumsPage";
 import CondominiumDetailPage from "./pages/CondominiumDetailPage";
 import CondominiumFormPage from "./pages/CondominiumFormPage";
@@ -34,6 +39,30 @@ const App = () => (
               
               {/* Rutas protegidas */}
               <Route path="/" element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              } />
+              
+              {/* Secciones principales */}
+              <Route path="/admin" element={
+                <ProtectedRoute>
+                  <AdminPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/residents" element={
+                <ProtectedRoute>
+                  <ResidentsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/concierge" element={
+                <ProtectedRoute>
+                  <ConciergePage />
+                </ProtectedRoute>
+              } />
+              
+              {/* Rutas existentes */}
+              <Route path="/home" element={
                 <ProtectedRoute>
                   <HomePage />
                 </ProtectedRoute>

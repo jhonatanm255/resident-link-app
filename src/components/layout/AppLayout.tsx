@@ -41,14 +41,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       />
 
       <div className="flex flex-1 overflow-hidden">
-        <div
-          className={`hidden md:flex md:w-64 flex-col bg-white shadow-md transform transition-transform duration-300 ease-in-out ${
-            menuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-        >
+        {/* Desktop Sidebar - Always visible on large screens */}
+        <div className="hidden md:flex md:w-64 flex-col bg-white shadow-md">
           <DesktopNavigation />
           {currentUser && (
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-gray-200 mt-auto">
               <div className="flex items-center space-x-3">
                 <UserMenu />
               </div>
@@ -56,6 +53,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           )}
         </div>
 
+        {/* Mobile Sidebar Overlay */}
         {menuOpen && (
           <div className="absolute inset-0 z-50 md:hidden">
             <div
