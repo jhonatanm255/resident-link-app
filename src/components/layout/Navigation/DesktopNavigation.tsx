@@ -4,138 +4,164 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home, LayoutDashboard, Share, Building2, Users, Shield, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useUserRole } from '@/hooks/useUserRole';
 
 export const DesktopNavigation: React.FC = () => {
   const location = useLocation();
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const { role, isAdmin, isResident, isConcierge } = useUserRole();
 
   const handleLogout = async () => {
     await logout();
     navigate("/login");
   };
 
-  const navigationItems = [
+  const allNavigationItems = [
     {
       to: "/",
       icon: Home,
       label: "Inicio",
-      section: "main"
+      section: "main",
+      roles: ['admin', 'resident', 'concierge']
     },
     {
       to: "/admin",
       icon: Building2,
       label: "Administración",
-      section: "admin"
+      section: "admin",
+      roles: ['admin']
     },
     {
       to: "/residents",
       icon: Users,
       label: "Residentes", 
-      section: "residents"
+      section: "residents",
+      roles: ['resident', 'admin']
     },
     {
       to: "/concierge",
       icon: Shield,
       label: "Conserjes",
-      section: "concierge"
+      section: "concierge",
+      roles: ['concierge', 'admin']
     },
     {
       to: "/dashboard",
       icon: LayoutDashboard,
       label: "Dashboard",
-      section: "legacy"
+      section: "legacy",
+      roles: ['admin', 'resident', 'concierge']
     },
     {
       to: "/share",
       icon: Share,
       label: "Compartir",
-      section: "legacy"
+      section: "legacy",
+      roles: ['admin', 'resident', 'concierge']
     }
   ];
 
+  // Filtrar navegación según el rol del usuario
+  const navigationItems = allNavigationItems.filter(item => 
+    role && item.roles.includes(role)
+  );
+
+  const getSectionItems = (section: string) => 
+    navigationItems.filter(item => item.section === section);
+
+  const mainItems = getSectionItems('main');
+  const sectionItems = getSectionItems('admin').concat(getSectionItems('residents'), getSectionItems('concierge'));
+  const legacyItems = getSectionItems('legacy');
+
   return (
-    <nav className="flex-1 pt-4">
+    <nav className="flex-1 pt-4 pb-4">
       {/* Sección Principal */}
-      <div className="mb-6">
-        <h3 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-          Principal
-        </h3>
-        <ul>
-          {navigationItems.filter(item => item.section === 'main').map((item) => (
-            <li key={item.to} className="mb-2">
-              <Link
-                to={item.to}
-                className={`flex items-center px-4 py-3 ${
-                  location.pathname === item.to
-                    ? "bg-primary-50 text-primary-700 border-r-4 border-primary-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <item.icon size={20} className="mr-3" />
-                <span>{item.label}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {mainItems.length > 0 && (
+        <div className="mb-6">
+          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Principal
+          </h3>
+          <ul className="space-y-1">
+            {mainItems.map((item) => (
+              <li key={item.to}>
+                <Link
+                  to={item.to}
+                  className={`flex items-center px-4 py-3 mx-2 rounded-lg transition-all duration-200 group ${
+                    location.pathname === item.to
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                  }`}
+                >
+                  <item.icon size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Secciones de la Aplicación */}
-      <div className="mb-6">
-        <h3 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-          Secciones
-        </h3>
-        <ul>
-          {navigationItems.filter(item => ['admin', 'residents', 'concierge'].includes(item.section)).map((item) => (
-            <li key={item.to} className="mb-2">
-              <Link
-                to={item.to}
-                className={`flex items-center px-4 py-3 ${
-                  location.pathname === item.to
-                    ? "bg-primary-50 text-primary-700 border-r-4 border-primary-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <item.icon size={20} className="mr-3" />
-                <span>{item.label}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {sectionItems.length > 0 && (
+        <div className="mb-6">
+          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Secciones
+          </h3>
+          <ul className="space-y-1">
+            {sectionItems.map((item) => (
+              <li key={item.to}>
+                <Link
+                  to={item.to}
+                  className={`flex items-center px-4 py-3 mx-2 rounded-lg transition-all duration-200 group ${
+                    location.pathname === item.to
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                  }`}
+                >
+                  <item.icon size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Herramientas Adicionales */}
-      <div className="mb-6">
-        <h3 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-          Herramientas
-        </h3>
-        <ul>
-          {navigationItems.filter(item => item.section === 'legacy').map((item) => (
-            <li key={item.to} className="mb-2">
-              <Link
-                to={item.to}
-                className={`flex items-center px-4 py-3 ${
-                  location.pathname === item.to
-                    ? "bg-primary-50 text-primary-700 border-r-4 border-primary-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <item.icon size={20} className="mr-3" />
-                <span>{item.label}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {legacyItems.length > 0 && (
+        <div className="mb-6">
+          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Herramientas
+          </h3>
+          <ul className="space-y-1">
+            {legacyItems.map((item) => (
+              <li key={item.to}>
+                <Link
+                  to={item.to}
+                  className={`flex items-center px-4 py-3 mx-2 rounded-lg transition-all duration-200 group ${
+                    location.pathname === item.to
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                  }`}
+                >
+                  <item.icon size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Botón de Cerrar Sesión */}
-      <div className="mt-auto pb-4">
+      <div className="mt-auto pt-4 border-t border-border">
         <button
           onClick={handleLogout}
-          className="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-50 transition-colors"
+          className="flex items-center w-full px-4 py-3 mx-2 rounded-lg text-destructive hover:bg-destructive/10 transition-all duration-200 group"
         >
-          <LogOut size={20} className="mr-3" />
-          <span>Cerrar Sesión</span>
+          <LogOut size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
+          <span className="font-medium">Cerrar Sesión</span>
         </button>
       </div>
     </nav>
