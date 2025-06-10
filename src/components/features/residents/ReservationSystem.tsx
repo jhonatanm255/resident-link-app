@@ -1,137 +1,249 @@
 
 import React, { useState } from 'react';
 import { AppButton } from '@/components/ui/app-button';
-import { Calendar, Clock, MapPin, Plus, Users } from 'lucide-react';
+import { Calendar, Clock, Users, MapPin, Plus, CheckCircle, X } from 'lucide-react';
 
 export const ReservationSystem = () => {
-  const [reservations] = useState([
+  const [selectedFacility, setSelectedFacility] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
+
+  const facilities = [
     {
-      id: '1',
-      space: 'Salón de Eventos',
+      id: 'salon',
+      name: 'Salón de Eventos',
+      capacity: '50 personas',
+      price: '$25.000',
+      description: 'Salón principal con cocina equipada',
+      available: true
+    },
+    {
+      id: 'quincho',
+      name: 'Quincho',
+      capacity: '30 personas',
+      price: '$15.000',
+      description: 'Área de parrilla con mesas y sillas',
+      available: true
+    },
+    {
+      id: 'gym',
+      name: 'Gimnasio',
+      capacity: '15 personas',
+      price: '$8.000',
+      description: 'Equipamiento completo de ejercicios',
+      available: false
+    },
+    {
+      id: 'pool',
+      name: 'Área de Piscina',
+      capacity: '25 personas',
+      price: '$20.000',
+      description: 'Piscina con área de descanso',
+      available: true
+    }
+  ];
+
+  const timeSlots = [
+    '09:00 - 12:00',
+    '12:00 - 15:00',
+    '15:00 - 18:00',
+    '18:00 - 21:00',
+    '21:00 - 24:00'
+  ];
+
+  const myReservations = [
+    {
+      id: 1,
+      facility: 'Salón de Eventos',
       date: '2024-01-20',
-      time: '15:00-20:00',
+      time: '18:00 - 21:00',
       status: 'confirmed',
       guests: 25
     },
     {
-      id: '2',
-      space: 'Quincho',
-      date: '2024-01-25',
-      time: '12:00-16:00',
+      id: 2,
+      facility: 'Quincho',
+      date: '2024-01-15',
+      time: '12:00 - 15:00',
       status: 'pending',
       guests: 15
     }
-  ]);
-
-  const availableSpaces = [
-    {
-      id: '1',
-      name: 'Salón de Eventos',
-      capacity: 50,
-      hourlyRate: '$25.000',
-      amenities: ['Cocina', 'Baños', 'Audio', 'Proyector']
-    },
-    {
-      id: '2',
-      name: 'Quincho',
-      capacity: 30,
-      hourlyRate: '$15.000',
-      amenities: ['Parrilla', 'Mesas', 'Baños', 'Lavaplatos']
-    },
-    {
-      id: '3',
-      name: 'Sala de Reuniones',
-      capacity: 12,
-      hourlyRate: '$10.000',
-      amenities: ['Mesa', 'Sillas', 'Proyector', 'Wifi']
-    }
   ];
+
+  const handleReservation = () => {
+    if (selectedFacility && selectedDate && selectedTime) {
+      alert('Reserva enviada para aprobación');
+      setSelectedFacility('');
+      setSelectedDate('');
+      setSelectedTime('');
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmed': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200';
-      case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+      case 'confirmed': return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200';
+      case 'pending': return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200';
+      case 'cancelled': return 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200';
+      default: return 'bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-200';
     }
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors duration-300">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Sistema de Reservas</h2>
-        <AppButton leftIcon={<Plus size={18} />}>
-          Nueva Reserva
-        </AppButton>
-      </div>
-
-      {/* Mis Reservas */}
-      <div className="mb-8">
-        <h3 className="text-lg font-medium mb-4 text-gray-800 dark:text-gray-200">Mis Reservas</h3>
-        <div className="space-y-3">
-          {reservations.map((reservation) => (
-            <div key={reservation.id} className="border dark:border-gray-600 rounded-lg p-4 transition-colors duration-300">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-medium text-gray-800 dark:text-gray-200">{reservation.space}</h4>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      {new Date(reservation.date).toLocaleDateString('es-ES')}
+    <div className="bg-card rounded-lg shadow-lg p-6 border border-border transition-colors duration-300">
+      <h2 className="text-xl font-semibold mb-6 text-foreground transition-colors duration-300">Sistema de Reservas</h2>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Nueva Reserva */}
+        <div>
+          <h3 className="text-lg font-medium mb-4 text-foreground transition-colors duration-300">Nueva Reserva</h3>
+          
+          {/* Selección de Instalación */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-foreground mb-2 transition-colors duration-300">
+              Seleccionar Instalación
+            </label>
+            <div className="grid grid-cols-1 gap-3">
+              {facilities.map((facility) => (
+                <div
+                  key={facility.id}
+                  className={`p-3 border rounded-lg cursor-pointer transition-all duration-300 ${
+                    selectedFacility === facility.id
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
+                  } ${!facility.available ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  onClick={() => facility.available && setSelectedFacility(facility.id)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-medium text-foreground transition-colors duration-300">{facility.name}</h4>
+                      <p className="text-sm text-muted-foreground transition-colors duration-300">{facility.description}</p>
+                      <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
+                        <span className="flex items-center">
+                          <Users className="h-4 w-4 mr-1" />
+                          {facility.capacity}
+                        </span>
+                        <span className="font-medium text-primary">{facility.price}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-1" />
-                      {reservation.time}
-                    </div>
-                    <div className="flex items-center">
-                      <Users className="h-4 w-4 mr-1" />
-                      {reservation.guests} personas
-                    </div>
+                    {!facility.available && (
+                      <span className="text-xs bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 px-2 py-1 rounded transition-colors duration-300">
+                        No disponible
+                      </span>
+                    )}
                   </div>
                 </div>
-                <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(reservation.status)}`}>
-                  {reservation.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
-                </span>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {/* Espacios Disponibles */}
-      <div>
-        <h3 className="text-lg font-medium mb-4 text-gray-800 dark:text-gray-200">Espacios Disponibles</h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {availableSpaces.map((space) => (
-            <div key={space.id} className="border dark:border-gray-600 rounded-lg p-4 transition-colors duration-300">
-              <div className="flex justify-between items-start mb-3">
-                <h4 className="font-medium text-gray-800 dark:text-gray-200">{space.name}</h4>
-                <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{space.hourlyRate}</span>
-              </div>
-              
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                <div className="flex items-center mb-1">
-                  <Users className="h-4 w-4 mr-1" />
-                  Hasta {space.capacity} personas
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <h5 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">SERVICIOS INCLUIDOS</h5>
-                <div className="flex flex-wrap gap-1">
-                  {space.amenities.map((amenity, index) => (
-                    <span key={index} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs rounded text-gray-600 dark:text-gray-300">
-                      {amenity}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              
-              <AppButton fullWidth size="sm">
-                Reservar
-              </AppButton>
+          {/* Selección de Fecha */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-foreground mb-2 transition-colors duration-300">
+              Fecha
+            </label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-300"
+              min={new Date().toISOString().split('T')[0]}
+            />
+          </div>
+
+          {/* Selección de Horario */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-foreground mb-2 transition-colors duration-300">
+              Horario
+            </label>
+            <div className="grid grid-cols-1 gap-2">
+              {timeSlots.map((time) => (
+                <button
+                  key={time}
+                  onClick={() => setSelectedTime(time)}
+                  className={`p-2 text-left border rounded-md transition-all duration-300 ${
+                    selectedTime === time
+                      ? 'border-primary bg-primary/5 text-primary'
+                      : 'border-border hover:border-primary/50 text-foreground'
+                  }`}
+                >
+                  <Clock className="inline h-4 w-4 mr-2" />
+                  {time}
+                </button>
+              ))}
             </div>
-          ))}
+          </div>
+
+          <AppButton
+            onClick={handleReservation}
+            disabled={!selectedFacility || !selectedDate || !selectedTime}
+            leftIcon={<Plus size={18} />}
+            className="w-full transition-all duration-300"
+          >
+            Solicitar Reserva
+          </AppButton>
+        </div>
+
+        {/* Mis Reservas */}
+        <div>
+          <h3 className="text-lg font-medium mb-4 text-foreground transition-colors duration-300">Mis Reservas</h3>
+          <div className="space-y-4">
+            {myReservations.map((reservation) => (
+              <div
+                key={reservation.id}
+                className="p-4 border border-border rounded-lg bg-background/50 transition-colors duration-300"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h4 className="font-medium text-foreground transition-colors duration-300">{reservation.facility}</h4>
+                    <div className="flex items-center space-x-4 mt-1 text-sm text-muted-foreground">
+                      <span className="flex items-center">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        {reservation.date}
+                      </span>
+                      <span className="flex items-center">
+                        <Clock className="h-4 w-4 mr-1" />
+                        {reservation.time}
+                      </span>
+                      <span className="flex items-center">
+                        <Users className="h-4 w-4 mr-1" />
+                        {reservation.guests} personas
+                      </span>
+                    </div>
+                  </div>
+                  <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(reservation.status)} transition-colors duration-300`}>
+                    {reservation.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
+                  </span>
+                </div>
+                <div className="flex space-x-2">
+                  {reservation.status === 'pending' && (
+                    <AppButton 
+                      size="sm" 
+                      variant="outline"
+                      leftIcon={<X size={16} />}
+                      className="transition-all duration-300"
+                    >
+                      Cancelar
+                    </AppButton>
+                  )}
+                  <AppButton 
+                    size="sm" 
+                    variant="outline"
+                    className="transition-all duration-300"
+                  >
+                    Ver Detalles
+                  </AppButton>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {myReservations.length === 0 && (
+            <div className="text-center py-8">
+              <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 transition-colors duration-300" />
+              <h4 className="text-lg font-medium text-foreground mb-2 transition-colors duration-300">Sin reservas</h4>
+              <p className="text-muted-foreground transition-colors duration-300">No tienes reservas activas</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

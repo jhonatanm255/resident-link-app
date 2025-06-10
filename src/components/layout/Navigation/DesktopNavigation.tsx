@@ -54,6 +54,13 @@ export const DesktopNavigation: React.FC = () => {
       roles: ['concierge', 'admin']
     },
     {
+      to: "/condominiums",
+      icon: Building2,
+      label: "Condominios",
+      section: "concierge",
+      roles: ['concierge', 'admin']
+    },
+    {
       to: "/dashboard",
       icon: LayoutDashboard,
       label: "Dashboard",
@@ -85,26 +92,26 @@ export const DesktopNavigation: React.FC = () => {
   const legacyItems = getSectionItems('legacy');
 
   return (
-    <nav className="flex-1 pt-4 pb-4">
+    <nav className="flex-1 pt-4 pb-4 transition-all duration-300 ease-in-out">
       {/* Sección Principal */}
       {mainItems.length > 0 && (
-        <div className="mb-6">
-          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+        <div className="mb-6 transform transition-all duration-300">
+          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 transition-colors duration-300">
             Principal
           </h3>
           <ul className="space-y-1">
             {mainItems.map((item) => (
-              <li key={item.to}>
+              <li key={item.to} className="transform transition-all duration-200 hover:translate-x-1">
                 <Link
                   to={item.to}
-                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group ${
+                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group transition-all duration-300 ease-in-out ${
                     location.pathname === item.to
-                      ? "bg-primary text-primary-foreground shadow-sm scale-105"
-                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md"
+                      ? "bg-primary text-primary-foreground shadow-lg scale-105 translate-x-1"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md hover:scale-102"
                   }`}
                 >
-                  <item.icon size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
-                  <span className="font-medium">{item.label}</span>
+                  <item.icon size={20} className="mr-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
+                  <span className="font-medium transition-all duration-300">{item.label}</span>
                 </Link>
               </li>
             ))}
@@ -114,23 +121,23 @@ export const DesktopNavigation: React.FC = () => {
 
       {/* Secciones de la Aplicación */}
       {sectionItems.length > 0 && (
-        <div className="mb-6">
-          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+        <div className="mb-6 transform transition-all duration-300">
+          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 transition-colors duration-300">
             Secciones
           </h3>
           <ul className="space-y-1">
             {sectionItems.map((item) => (
-              <li key={item.to}>
+              <li key={item.to} className="transform transition-all duration-200 hover:translate-x-1">
                 <Link
                   to={item.to}
-                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group ${
+                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group transition-all duration-300 ease-in-out ${
                     location.pathname === item.to
-                      ? "bg-primary text-primary-foreground shadow-sm scale-105"
-                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md"
+                      ? "bg-primary text-primary-foreground shadow-lg scale-105 translate-x-1"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md hover:scale-102"
                   }`}
                 >
-                  <item.icon size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
-                  <span className="font-medium">{item.label}</span>
+                  <item.icon size={20} className="mr-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
+                  <span className="font-medium transition-all duration-300">{item.label}</span>
                 </Link>
               </li>
             ))}
@@ -140,23 +147,23 @@ export const DesktopNavigation: React.FC = () => {
 
       {/* Herramientas Adicionales */}
       {legacyItems.length > 0 && (
-        <div className="mb-6">
-          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+        <div className="mb-6 transform transition-all duration-300">
+          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 transition-colors duration-300">
             Herramientas
           </h3>
           <ul className="space-y-1">
             {legacyItems.map((item) => (
-              <li key={item.to}>
+              <li key={item.to} className="transform transition-all duration-200 hover:translate-x-1">
                 <Link
                   to={item.to}
-                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group ${
+                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group transition-all duration-300 ease-in-out ${
                     location.pathname === item.to
-                      ? "bg-primary text-primary-foreground shadow-sm scale-105"
-                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md"
+                      ? "bg-primary text-primary-foreground shadow-lg scale-105 translate-x-1"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md hover:scale-102"
                   }`}
                 >
-                  <item.icon size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
-                  <span className="font-medium">{item.label}</span>
+                  <item.icon size={20} className="mr-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
+                  <span className="font-medium transition-all duration-300">{item.label}</span>
                 </Link>
               </li>
             ))}
@@ -165,13 +172,13 @@ export const DesktopNavigation: React.FC = () => {
       )}
 
       {/* Botón de Cerrar Sesión */}
-      <div className="mt-auto pt-4 border-t border-border">
+      <div className="mt-auto pt-4 border-t border-border transition-colors duration-300">
         <button
           onClick={handleLogout}
-          className="nav-link flex items-center w-full px-4 py-3 mx-2 rounded-lg text-destructive hover:bg-destructive/10 group"
+          className="nav-link flex items-center w-full px-4 py-3 mx-2 rounded-lg text-destructive hover:bg-destructive/10 group transition-all duration-300 ease-in-out hover:scale-102"
         >
-          <LogOut size={20} className="mr-3 transition-transform duration-200 group-hover:scale-110" />
-          <span className="font-medium">Cerrar Sesión</span>
+          <LogOut size={20} className="mr-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
+          <span className="font-medium transition-all duration-300">Cerrar Sesión</span>
         </button>
       </div>
     </nav>
