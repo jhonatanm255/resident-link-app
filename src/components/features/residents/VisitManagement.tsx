@@ -1,41 +1,12 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { QrCode, Calendar, Clock, User, Eye, Trash2 } from 'lucide-react';
 import { AppButton } from '@/components/ui/app-button';
 import { NewVisitModal } from './NewVisitModal';
-
-interface Visit {
-  id: string;
-  visitorName: string;
-  visitDate: string;
-  visitTime: string;
-  purpose?: string;
-  qrCode: string;
-  numericCode: string;
-  status: 'pending' | 'approved' | 'rejected' | 'completed';
-}
+import { useVisits } from '@/contexts/VisitContext';
 
 export const VisitManagement = () => {
-  const [visits, setVisits] = useState<Visit[]>([
-    {
-      id: '1',
-      visitorName: 'Juan Pérez',
-      visitDate: '2024-01-15',
-      visitTime: '14:00',
-      purpose: 'Visita familiar',
-      qrCode: 'QR123456',
-      numericCode: '789123',
-      status: 'pending'
-    }
-  ]);
-
-  const generateVisitCode = () => {
-    return Math.random().toString(36).substring(2, 8).toUpperCase();
-  };
-
-  const generateNumericCode = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  };
+  const { visits, addVisit, deleteVisit } = useVisits();
 
   const handleNewVisit = (visitData: {
     visitorName: string;
@@ -43,21 +14,18 @@ export const VisitManagement = () => {
     visitTime: string;
     purpose: string;
   }) => {
-    const newVisit: Visit = {
-      id: Date.now().toString(),
+    addVisit({
       ...visitData,
-      qrCode: generateVisitCode(),
-      numericCode: generateNumericCode(),
-      status: 'pending'
-    };
-    setVisits([...visits, newVisit]);
+      residentName: 'Usuario Actual', // En producción esto vendría del usuario logueado
+      apartment: 'Apt 101' // En producción esto vendría del perfil del usuario
+    });
   };
 
   const handleDeleteVisit = (visitId: string) => {
-    setVisits(visits.filter(visit => visit.id !== visitId));
+    deleteVisit(visitId);
   };
 
-  const getStatusColor = (status: Visit['status']) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200';
       case 'approved': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200';
@@ -67,7 +35,7 @@ export const VisitManagement = () => {
     }
   };
 
-  const getStatusText = (status: Visit['status']) => {
+  const getStatusText = (status: string) => {
     switch (status) {
       case 'pending': return 'Pendiente';
       case 'approved': return 'Aprobada';
@@ -78,32 +46,32 @@ export const VisitManagement = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors duration-300">
+    <div className="bg-card rounded-lg shadow-lg p-6 border border-border transition-colors duration-300">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Gestión de Visitas</h2>
+        <h2 className="text-xl font-semibold text-foreground">Gestión de Visitas</h2>
         <NewVisitModal onAddVisit={handleNewVisit} />
       </div>
       
       <div className="space-y-4">
         {visits.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-8 text-muted-foreground">
             No tienes visitas registradas
           </div>
         ) : (
           visits.map((visit) => (
-            <div key={visit.id} className="border dark:border-gray-600 rounded-lg p-4 transition-colors duration-300">
+            <div key={visit.id} className="border border-border rounded-lg p-4 transition-colors duration-300">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center mb-2">
-                    <User className="h-5 w-5 mr-2 text-gray-500 dark:text-gray-400" />
-                    <span className="font-medium text-gray-800 dark:text-gray-200">{visit.visitorName}</span>
+                    <User className="h-5 w-5 mr-2 text-muted-foreground" />
+                    <span className="font-medium text-foreground">{visit.visitorName}</span>
                   </div>
                   
                   {visit.purpose && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{visit.purpose}</p>
+                    <p className="text-sm text-muted-foreground mb-2">{visit.purpose}</p>
                   )}
                   
-                  <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
                       {new Date(visit.visitDate).toLocaleDateString('es-ES')}
@@ -121,7 +89,7 @@ export const VisitManagement = () => {
                     <span className="font-mono text-sm text-blue-600 dark:text-blue-400">{visit.qrCode}</span>
                   </div>
                   
-                  <div className="text-lg font-bold text-gray-800 dark:text-gray-200">
+                  <div className="text-lg font-bold text-foreground">
                     #{visit.numericCode}
                   </div>
                   

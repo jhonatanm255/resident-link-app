@@ -3,59 +3,14 @@ import React, { useState } from 'react';
 import { AppButton } from '@/components/ui/app-button';
 import { QrCode, Hash, CheckCircle, XCircle, Search, Clock, User } from 'lucide-react';
 import { toast } from 'sonner';
-
-interface Visit {
-  id: string;
-  visitorName: string;
-  residentName: string;
-  apartment: string;
-  visitTime: string;
-  qrCode: string;
-  numericCode: string;
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt: string;
-}
+import { useVisits } from '@/contexts/VisitContext';
 
 export const VisitValidation = () => {
   const [searchCode, setSearchCode] = useState('');
-  const [foundVisit, setFoundVisit] = useState<Visit | null>(null);
+  const [foundVisit, setFoundVisit] = useState<any>(null);
   const [isSearching, setIsSearching] = useState(false);
   
-  const [pendingVisits, setPendingVisits] = useState<Visit[]>([
-    {
-      id: '1',
-      visitorName: 'Juan Pérez',
-      residentName: 'María González',
-      apartment: 'Apt 304',
-      visitTime: '14:00',
-      qrCode: 'QR123456',
-      numericCode: '789123',
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: '2',
-      visitorName: 'Ana López',
-      residentName: 'Carlos Rodríguez',
-      apartment: 'Apt 108',
-      visitTime: '16:30',
-      qrCode: 'QR789012',
-      numericCode: '456789',
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: '3',
-      visitorName: 'Pedro Silva',
-      residentName: 'Laura Martínez',
-      apartment: 'Apt 205',
-      visitTime: '18:00',
-      qrCode: 'QR345678',
-      numericCode: '123456',
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    }
-  ]);
+  const { visits, updateVisitStatus } = useVisits();
 
   const handleSearch = () => {
     if (!searchCode.trim()) {
@@ -67,7 +22,7 @@ export const VisitValidation = () => {
     
     // Simular búsqueda
     setTimeout(() => {
-      const visit = pendingVisits.find(v => 
+      const visit = visits.find(v => 
         v.qrCode === searchCode.trim() || v.numericCode === searchCode.trim()
       );
       
@@ -83,11 +38,7 @@ export const VisitValidation = () => {
   };
 
   const handleApproveVisit = (visitId: string) => {
-    setPendingVisits(prev => prev.map(visit => 
-      visit.id === visitId 
-        ? { ...visit, status: 'approved' as const }
-        : visit
-    ));
+    updateVisitStatus(visitId, 'approved');
     
     if (foundVisit && foundVisit.id === visitId) {
       setFoundVisit({ ...foundVisit, status: 'approved' });
@@ -97,11 +48,7 @@ export const VisitValidation = () => {
   };
 
   const handleRejectVisit = (visitId: string) => {
-    setPendingVisits(prev => prev.map(visit => 
-      visit.id === visitId 
-        ? { ...visit, status: 'rejected' as const }
-        : visit
-    ));
+    updateVisitStatus(visitId, 'rejected');
     
     if (foundVisit && foundVisit.id === visitId) {
       setFoundVisit({ ...foundVisit, status: 'rejected' });
@@ -110,8 +57,8 @@ export const VisitValidation = () => {
     toast.success("Visita rechazada");
   };
 
-  const VisitCard = ({ visit, showActions = true }: { visit: Visit; showActions?: boolean }) => (
-    <div className="border border-border dark:border-gray-600 rounded-lg p-4 bg-card transition-colors duration-300">
+  const VisitCard = ({ visit, showActions = true }: { visit: any; showActions?: boolean }) => (
+    <div className="border border-border rounded-lg p-4 bg-card transition-colors duration-300">
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <div className="flex items-center mb-2">
@@ -188,6 +135,9 @@ export const VisitValidation = () => {
     </div>
   );
 
+  const pendingVisits = visits.filter(v => v.status === 'pending');
+  const processedVisits = visits.filter(v => v.status !== 'pending');
+
   return (
     <div className="bg-card rounded-lg shadow-lg p-6 border border-border transition-colors duration-300">
       <h2 className="text-xl font-semibold mb-6 text-foreground flex items-center">
@@ -231,37 +181,32 @@ export const VisitValidation = () => {
       <div className="space-y-4">
         <h3 className="font-medium text-foreground flex items-center">
           <Clock className="h-5 w-5 mr-2 text-orange-600 dark:text-orange-400" />
-          Visitas Pendientes ({pendingVisits.filter(v => v.status === 'pending').length})
+          Visitas Pendientes ({pendingVisits.length})
         </h3>
         
-        {pendingVisits.filter(v => v.status === 'pending').length === 0 ? (
+        {pendingVisits.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <QrCode className="h-12 w-12 mx-auto mb-3 opacity-50" />
             <p>No hay visitas pendientes de validación</p>
           </div>
         ) : (
-          pendingVisits
-            .filter(visit => visit.status === 'pending')
-            .map((visit) => (
-              <VisitCard key={visit.id} visit={visit} />
-            ))
+          pendingVisits.map((visit) => (
+            <VisitCard key={visit.id} visit={visit} />
+          ))
         )}
       </div>
 
       {/* Historial de visitas procesadas */}
-      {pendingVisits.filter(v => v.status !== 'pending').length > 0 && (
+      {processedVisits.length > 0 && (
         <div className="mt-8 space-y-4">
           <h3 className="font-medium text-foreground flex items-center">
             <CheckCircle className="h-5 w-5 mr-2 text-green-600 dark:text-green-400" />
             Visitas Procesadas
           </h3>
           
-          {pendingVisits
-            .filter(visit => visit.status !== 'pending')
-            .map((visit) => (
-              <VisitCard key={visit.id} visit={visit} showActions={false} />
-            ))
-          }
+          {processedVisits.map((visit) => (
+            <VisitCard key={visit.id} visit={visit} showActions={false} />
+          ))}
         </div>
       )}
     </div>

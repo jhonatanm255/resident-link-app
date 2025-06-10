@@ -54,13 +54,6 @@ export const DesktopNavigation: React.FC = () => {
       roles: ['concierge', 'admin', 'committee']
     },
     {
-      to: "/condominiums",
-      icon: Building2,
-      label: "Gestión de Condominios",
-      section: "concierge",
-      roles: ['concierge', 'admin', 'committee']
-    },
-    {
       to: "/dashboard",
       icon: LayoutDashboard,
       label: "Dashboard",
