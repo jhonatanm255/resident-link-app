@@ -27,7 +27,7 @@ export const DesktopNavigation: React.FC = () => {
     },
     {
       to: "/admin",
-      icon: Building2,
+      icon: Shield,
       label: "Administración",
       section: "admin",
       roles: ['admin']
@@ -48,17 +48,17 @@ export const DesktopNavigation: React.FC = () => {
     },
     {
       to: "/concierge",
-      icon: Shield,
+      icon: Building2,
       label: "Conserjes",
       section: "concierge",
-      roles: ['concierge', 'admin']
+      roles: ['concierge', 'admin', 'committee']
     },
     {
       to: "/condominiums",
       icon: Building2,
-      label: "Condominios",
+      label: "Gestión de Condominios",
       section: "concierge",
-      roles: ['concierge', 'admin']
+      roles: ['concierge', 'admin', 'committee']
     },
     {
       to: "/dashboard",
@@ -85,14 +85,14 @@ export const DesktopNavigation: React.FC = () => {
     navigationItems.filter(item => item.section === section);
 
   const mainItems = getSectionItems('main');
-  const sectionItems = getSectionItems('admin')
-    .concat(getSectionItems('committee'))
-    .concat(getSectionItems('residents'))
-    .concat(getSectionItems('concierge'));
+  const adminItems = getSectionItems('admin');
+  const committeeItems = getSectionItems('committee');
+  const residentsItems = getSectionItems('residents');
+  const conciergeItems = getSectionItems('concierge');
   const legacyItems = getSectionItems('legacy');
 
   return (
-    <nav className="flex-1 pt-4 pb-4 transition-all duration-300 ease-in-out">
+    <nav className="flex-1 pt-4 pb-4 transition-all duration-500 ease-in-out">
       {/* Sección Principal */}
       {mainItems.length > 0 && (
         <div className="mb-6 transform transition-all duration-300">
@@ -119,14 +119,92 @@ export const DesktopNavigation: React.FC = () => {
         </div>
       )}
 
-      {/* Secciones de la Aplicación */}
-      {sectionItems.length > 0 && (
+      {/* Sección Administración */}
+      {adminItems.length > 0 && (
         <div className="mb-6 transform transition-all duration-300">
           <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 transition-colors duration-300">
-            Secciones
+            Administración
           </h3>
           <ul className="space-y-1">
-            {sectionItems.map((item) => (
+            {adminItems.map((item) => (
+              <li key={item.to} className="transform transition-all duration-200 hover:translate-x-1">
+                <Link
+                  to={item.to}
+                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group transition-all duration-300 ease-in-out ${
+                    location.pathname === item.to
+                      ? "bg-primary text-primary-foreground shadow-lg scale-105 translate-x-1"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md hover:scale-102"
+                  }`}
+                >
+                  <item.icon size={20} className="mr-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
+                  <span className="font-medium transition-all duration-300">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Sección Comité */}
+      {committeeItems.length > 0 && (
+        <div className="mb-6 transform transition-all duration-300">
+          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 transition-colors duration-300">
+            Comité Administrativo
+          </h3>
+          <ul className="space-y-1">
+            {committeeItems.map((item) => (
+              <li key={item.to} className="transform transition-all duration-200 hover:translate-x-1">
+                <Link
+                  to={item.to}
+                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group transition-all duration-300 ease-in-out ${
+                    location.pathname === item.to
+                      ? "bg-primary text-primary-foreground shadow-lg scale-105 translate-x-1"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md hover:scale-102"
+                  }`}
+                >
+                  <item.icon size={20} className="mr-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
+                  <span className="font-medium transition-all duration-300">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Sección Residentes */}
+      {residentsItems.length > 0 && (
+        <div className="mb-6 transform transition-all duration-300">
+          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 transition-colors duration-300">
+            Área de Residentes
+          </h3>
+          <ul className="space-y-1">
+            {residentsItems.map((item) => (
+              <li key={item.to} className="transform transition-all duration-200 hover:translate-x-1">
+                <Link
+                  to={item.to}
+                  className={`nav-link flex items-center px-4 py-3 mx-2 rounded-lg group transition-all duration-300 ease-in-out ${
+                    location.pathname === item.to
+                      ? "bg-primary text-primary-foreground shadow-lg scale-105 translate-x-1"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground hover:shadow-md hover:scale-102"
+                  }`}
+                >
+                  <item.icon size={20} className="mr-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3" />
+                  <span className="font-medium transition-all duration-300">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Sección Conserjes */}
+      {conciergeItems.length > 0 && (
+        <div className="mb-6 transform transition-all duration-300">
+          <h3 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 transition-colors duration-300">
+            Conserjería
+          </h3>
+          <ul className="space-y-1">
+            {conciergeItems.map((item) => (
               <li key={item.to} className="transform transition-all duration-200 hover:translate-x-1">
                 <Link
                   to={item.to}

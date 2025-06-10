@@ -14,16 +14,20 @@ export const CondominiumCard: React.FC<CondominiumCardProps> = ({ condominium })
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   return (
-    <div className="bg-white rounded-lg shadow-md p-5 mb-4 hover:shadow-lg transition-shadow">
+    <div className="bg-card rounded-lg shadow-md p-5 mb-4 hover:shadow-lg transition-all duration-300 border border-border">
       <div className="flex items-start justify-between">
         <Link to={`/condominiums/${condominium.id}`} className="flex items-center flex-1">
-          <div className="bg-primary-100 p-3 rounded-full mr-4">
-            <Building2 className="text-primary-700" size={24} />
+          <div className="bg-primary/10 p-3 rounded-full mr-4 transition-colors duration-300">
+            <Building2 className="text-primary" size={24} />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-800">{condominium.name}</h3>
-            <p className="text-sm text-gray-500">{condominium.address}</p>
-            <div className="mt-1 text-sm text-primary-600">
+            <h3 className="text-lg font-semibold text-foreground transition-colors duration-300">
+              {condominium.name}
+            </h3>
+            <p className="text-sm text-muted-foreground transition-colors duration-300">
+              {condominium.address}
+            </p>
+            <div className="mt-1 text-sm text-primary transition-colors duration-300">
               {condominium.apartments.length} {condominium.apartments.length === 1 ? 'Apartamento' : 'Apartamentos'}
             </div>
           </div>
@@ -32,8 +36,8 @@ export const CondominiumCard: React.FC<CondominiumCardProps> = ({ condominium })
         <div className="flex items-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="p-1 rounded-full hover:bg-gray-100 focus:outline-none">
-                <MoreVertical className="text-gray-500" size={20} />
+              <button className="p-1 rounded-full hover:bg-accent transition-colors duration-200">
+                <MoreVertical className="text-muted-foreground" size={20} />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -53,7 +57,7 @@ export const CondominiumCard: React.FC<CondominiumCardProps> = ({ condominium })
             </DropdownMenuContent>
           </DropdownMenu>
           <Link to={`/condominiums/${condominium.id}`}>
-            <ChevronRight className="text-gray-400 ml-2" size={20} />
+            <ChevronRight className="text-muted-foreground ml-2 transition-colors duration-300" size={20} />
           </Link>
         </div>
       </div>

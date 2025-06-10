@@ -7,27 +7,58 @@ import { useApp } from "@/contexts/AppContext";
 import { Building2, Plus, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const CondominiumsPage = () => {
   const { condominiums } = useApp();
+  const { role, isConcierge, isAdmin, isCommittee } = useUserRole();
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Verificar permisos
+  if (!isConcierge && !isAdmin && !isCommittee) {
+    return (
+      <AppLayout title="Acceso Denegado">
+        <div className="text-center py-8">
+          <p className="text-muted-foreground transition-colors duration-300">
+            No tienes permisos para acceder a esta sección.
+          </p>
+        </div>
+      </AppLayout>
+    );
+  }
 
   const filteredCondominiums = condominiums.filter((condominium) =>
     condominium.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     condominium.address.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getRoleTitle = () => {
+    if (isAdmin) return "Administración de";
+    if (isCommittee) return "Supervisión de";
+    if (isConcierge) return "Gestión de";
+    return "";
+  };
+
   return (
-    <AppLayout title="Condominios">
+    <AppLayout title="Gestión de Condominios">
       <div className="max-w-3xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-foreground transition-colors duration-300">Mis Condominios</h1>
+            <h1 className="text-2xl font-bold text-foreground transition-colors duration-300">
+              {getRoleTitle()} Condominios
+            </h1>
             <p className="text-muted-foreground mt-1 transition-colors duration-300">
               {condominiums.length > 0
                 ? `${condominiums.length} condominio${condominiums.length !== 1 ? "s" : ""} registrado${condominiums.length !== 1 ? "s" : ""}`
                 : "No hay condominios registrados"}
             </p>
+            {role && (
+              <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-2 bg-primary/10 text-primary">
+                {role === 'admin' && 'Administrador'}
+                {role === 'committee' && 'Comité'}
+                {role === 'concierge' && 'Conserje'}
+              </div>
+            )}
           </div>
           <Link to="/condominiums/new" className="mt-4 md:mt-0">
             <AppButton
@@ -83,7 +114,11 @@ const CondominiumsPage = () => {
                   <Building2 className="h-12 w-12 text-muted-foreground transition-colors duration-300" />
                 </div>
                 <h3 className="text-lg font-medium text-foreground mb-2 transition-colors duration-300">No hay condominios registrados</h3>
-                <p className="text-muted-foreground mb-6 transition-colors duration-300">Comienza registrando tu primer condominio</p>
+                <p className="text-muted-foreground mb-6 transition-colors duration-300">
+                  {isConcierge && "Como conserje, puedes registrar condominios para gestionar"}
+                  {isAdmin && "Como administrador, puedes registrar y gestionar condominios"}
+                  {isCommittee && "Como miembro del comité, puedes supervisar condominios"}
+                </p>
                 <Link to="/condominiums/new">
                   <AppButton
                     leftIcon={<Plus size={18} />}
