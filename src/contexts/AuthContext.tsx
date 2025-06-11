@@ -49,6 +49,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Iniciar sesión con Google
   const signInWithGoogle = () => {
+    console.log("Configurando proveedor de Google...");
+    console.log("Google Provider configurado:", googleProvider);
+    
+    // Configurar el proveedor para mostrar la pantalla de selección de cuenta
+    googleProvider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    
+    console.log("Llamando a signInWithPopup...");
     return signInWithPopup(auth, googleProvider);
   };
 
@@ -60,7 +69,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    console.log("Configurando listener de autenticación...");
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Estado de autenticación cambió:", user ? "Usuario logueado" : "Usuario no logueado");
       setCurrentUser(user);
       setLoading(false);
     });

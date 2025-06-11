@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,7 +27,7 @@ const LoginPage = () => {
       toast.success("Has iniciado sesión correctamente");
       navigate("/");
     } catch (error: any) {
-      console.error(error);
+      console.error("Error en login con email:", error);
       toast.error(getAuthErrorMessage(error.code));
     } finally {
       setIsLoading(false);
@@ -36,13 +35,17 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = async () => {
+    console.log("Iniciando login con Google...");
     setIsLoading(true);
     try {
-      await signInWithGoogle();
+      const result = await signInWithGoogle();
+      console.log("Login con Google exitoso:", result);
       toast.success("Has iniciado sesión con Google correctamente");
       navigate("/");
     } catch (error: any) {
-      console.error(error);
+      console.error("Error detallado en login con Google:", error);
+      console.error("Código de error:", error.code);
+      console.error("Mensaje de error:", error.message);
       toast.error(getAuthErrorMessage(error.code));
     } finally {
       setIsLoading(false);
@@ -50,6 +53,7 @@ const LoginPage = () => {
   };
 
   const getAuthErrorMessage = (errorCode: string): string => {
+    console.log("Procesando código de error:", errorCode);
     switch (errorCode) {
       case "auth/invalid-email":
         return "El correo electrónico no es válido";
@@ -61,11 +65,19 @@ const LoginPage = () => {
       case "auth/too-many-requests":
         return "Demasiados intentos fallidos. Intenta más tarde";
       case "auth/popup-closed-by-user":
-        return "Ventana de inicio de sesión cerrada";
+        return "Ventana de inicio de sesión cerrada por el usuario";
+      case "auth/popup-blocked":
+        return "El navegador bloqueó la ventana emergente. Permite ventanas emergentes para este sitio";
+      case "auth/cancelled-popup-request":
+        return "Solicitud de ventana emergente cancelada";
+      case "auth/unauthorized-domain":
+        return "Este dominio no está autorizado para usar Firebase Auth";
+      case "auth/operation-not-allowed":
+        return "El inicio de sesión con Google no está habilitado";
       case "auth/api-key-not-valid.-please-pass-a-valid-api-key.":
         return "Error de configuración. Contacta al administrador";
       default:
-        return "Ocurrió un error al iniciar sesión";
+        return `Error al iniciar sesión: ${errorCode || "Error desconocido"}`;
     }
   };
 

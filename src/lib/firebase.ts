@@ -14,12 +14,21 @@ const firebaseConfig = {
   measurementId: "G-H0MGSC2QH7"
 };
 
+console.log("Inicializando Firebase con configuración:", firebaseConfig);
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 // Auth
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// Configurar el proveedor de Google con parámetros adicionales
+googleProvider.addScope('email');
+googleProvider.addScope('profile');
+
+console.log("Firebase Auth inicializado:", auth);
+console.log("Google Provider configurado:", googleProvider);
 
 // Firestore
 export const db = getFirestore(app);
