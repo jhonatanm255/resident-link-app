@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { AppButton } from '@/components/ui/app-button';
-import { Truck, Plus, Phone, Mail } from 'lucide-react';
+import { Truck, Plus, Phone, Mail, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const ProviderManagement = () => {
   const providers = [
@@ -24,42 +25,43 @@ export const ProviderManagement = () => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <div className="bg-card rounded-lg shadow-lg p-6 border transition-colors duration-300">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Gestión de Proveedores</h2>
-        <AppButton leftIcon={<Plus size={18} />}>
-          Nuevo Proveedor
-        </AppButton>
+        <h2 className="text-xl font-semibold text-foreground">Gestión de Proveedores</h2>
+        <Link to="/admin/providers">
+          <AppButton leftIcon={<Eye size={18} />}>
+            Ver Todo
+          </AppButton>
+        </Link>
       </div>
       
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b dark:border-gray-600">
-              <th className="text-left py-2 text-gray-700 dark:text-gray-300">Proveedor</th>
-              <th className="text-left py-2 text-gray-700 dark:text-gray-300">Servicio</th>
-              <th className="text-left py-2 text-gray-700 dark:text-gray-300">Contacto</th>
-              <th className="text-left py-2 text-gray-700 dark:text-gray-300">Estado</th>
-              <th className="text-left py-2 text-gray-700 dark:text-gray-300">Acciones</th>
+            <tr className="border-b dark:border-border">
+              <th className="text-left py-2 text-foreground">Proveedor</th>
+              <th className="text-left py-2 text-foreground">Servicio</th>
+              <th className="text-left py-2 text-foreground">Contacto</th>
+              <th className="text-left py-2 text-foreground">Estado</th>
             </tr>
           </thead>
           <tbody>
             {providers.map((provider) => (
-              <tr key={provider.id} className="border-b dark:border-gray-600">
+              <tr key={provider.id} className="border-b dark:border-border">
                 <td className="py-3">
                   <div className="flex items-center">
-                    <Truck className="h-5 w-5 mr-2 text-gray-500" />
-                    <span className="text-gray-800 dark:text-gray-200">{provider.name}</span>
+                    <Truck className="h-5 w-5 mr-2 text-muted-foreground" />
+                    <span className="text-foreground">{provider.name}</span>
                   </div>
                 </td>
-                <td className="py-3 text-gray-600 dark:text-gray-400">{provider.service}</td>
+                <td className="py-3 text-muted-foreground">{provider.service}</td>
                 <td className="py-3">
                   <div className="space-y-1">
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center text-sm text-muted-foreground">
                       <Phone className="h-4 w-4 mr-1" />
                       {provider.contact}
                     </div>
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center text-sm text-muted-foreground">
                       <Mail className="h-4 w-4 mr-1" />
                       {provider.email}
                     </div>
@@ -70,15 +72,18 @@ export const ProviderManagement = () => {
                     {provider.status}
                   </span>
                 </td>
-                <td className="py-3">
-                  <AppButton size="sm" variant="outline">
-                    Editar
-                  </AppButton>
-                </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      
+      <div className="mt-4 flex justify-center">
+        <Link to="/admin/providers">
+          <AppButton leftIcon={<Plus size={18} />}>
+            Nuevo Proveedor
+          </AppButton>
+        </Link>
       </div>
     </div>
   );

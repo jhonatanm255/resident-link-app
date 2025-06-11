@@ -25,6 +25,14 @@ import RegisterPage from "./pages/RegisterPage";
 import NotFound from "./pages/NotFound";
 import CommitteePage from "./pages/CommitteePage";
 
+// Admin Pages
+import UsersPage from "./pages/admin/UsersPage";
+import PaymentsPage from "./pages/admin/PaymentsPage";
+import MeasurementsPage from "./pages/admin/MeasurementsPage";
+import ProvidersPage from "./pages/admin/ProvidersPage";
+import NotificationsPage from "./pages/admin/NotificationsPage";
+import SettingsPage from "./pages/admin/SettingsPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -68,6 +76,38 @@ const App = () => (
                   <Route path="/committee" element={
                     <ProtectedRoute>
                       <CommitteePage />
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* Rutas administrativas */}
+                  <Route path="/admin/users" element={
+                    <ProtectedRoute>
+                      <UsersPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/payments" element={
+                    <ProtectedRoute>
+                      <PaymentsPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/measurements" element={
+                    <ProtectedRoute>
+                      <MeasurementsPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/providers" element={
+                    <ProtectedRoute>
+                      <ProvidersPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/notifications" element={
+                    <ProtectedRoute>
+                      <NotificationsPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/settings" element={
+                    <ProtectedRoute>
+                      <SettingsPage />
                     </ProtectedRoute>
                   } />
                   
